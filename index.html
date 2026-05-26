@@ -46,17 +46,6 @@
   }
   .header p { font-size: 11px; color: #555; font-family: 'JetBrains Mono', monospace; }
 
-  /* Mode Toggle */
-  .mode-toggle { padding: 14px 20px; border-bottom: 1px solid #1A1A1F; }
-  .toggle-wrap { display: flex; background: var(--surface); border-radius: 10px; padding: 3px; gap: 3px; }
-  .toggle-btn {
-    flex: 1; padding: 10px; border-radius: 8px; border: none;
-    background: transparent; color: #666; font-size: 14px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    transition: all 0.25s;
-  }
-  .toggle-btn.active { background: var(--accent); color: #fff; }
-
   /* Content */
   .content { padding: 20px; }
 
@@ -137,19 +126,6 @@
   .theme-label { font-size: 11px; color: #666; font-weight: 600; }
   .theme-btn.active .theme-label { color: var(--accent); }
 
-  /* Template list */
-  .cat-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
-  .tpl-list { display: flex; flex-direction: column; gap: 8px; }
-  .tpl-btn {
-    width: 100%; padding: 14px; border-radius: 12px;
-    border: 1px solid var(--border); background: var(--surface);
-    text-align: left; transition: all 0.2s; color: var(--text);
-  }
-  .tpl-btn:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
-  .tpl-cat-label { font-size: 10px; color: var(--accent); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.1em; margin-bottom: 4px; }
-  .tpl-title { font-size: 15px; font-weight: 700; }
-  .tpl-pages { font-size: 12px; color: #555; margin-top: 4px; }
-  .tpl-row { display: flex; align-items: center; justify-content: space-between; }
 
   /* Preview section */
   .preview-section { padding: 0 20px 40px; animation: fadeUp 0.35s ease-out; }
@@ -263,14 +239,6 @@
   <p>CAROUSEL GENERATOR — POWERED BY CLAUDE AI</p>
 </div>
 
-<!-- MODE TOGGLE -->
-<div class="mode-toggle">
-  <div class="toggle-wrap">
-    <button class="toggle-btn active" id="btn-ai" onclick="setMode('ai')">✦ AI 生成</button>
-    <button class="toggle-btn" id="btn-tpl" onclick="setMode('template')">📚 模板庫</button>
-  </div>
-</div>
-
 <!-- MAIN CONTENT -->
 <div class="content">
 
@@ -321,20 +289,6 @@
     <div class="error-box" id="error-box"></div>
   </div>
 
-  <!-- TEMPLATE MODE -->
-  <div id="panel-tpl" style="display:none;">
-    <div class="mb">
-      <label class="label">浮水印品牌</label>
-      <input type="text" id="brandNameTpl" value="PLUS ONE" style="border-radius:8px;font-size:13px;" />
-    </div>
-    <div class="mb">
-      <label class="label">配色主題</label>
-      <div class="theme-row" id="theme-row-tpl"></div>
-    </div>
-    <div class="cat-row" id="tpl-cat-row"></div>
-    <div class="tpl-list" id="tpl-list"></div>
-  </div>
-
 </div><!-- /content -->
 
 <!-- PREVIEW SECTION -->
@@ -356,6 +310,12 @@
   <!-- Theme row in preview -->
   <div style="margin-bottom:12px;">
     <div class="theme-row" id="theme-row-preview"></div>
+    <button id="gradient-toggle-btn" onclick="toggleGradient()" style="
+      margin-top:10px; width:100%; padding:9px; border-radius:8px;
+      border:1px solid var(--border); background:var(--surface);
+      color:var(--sub); font-size:13px; font-weight:700;
+      transition:all 0.2s; cursor:pointer;
+    ">🎨 切換：漸層背景</button>
   </div>
 
   <div class="slide-wrap">
@@ -426,99 +386,16 @@ const TONES = [
   { label:"專業權威", value:"professional", emoji:"🎯", prompt:"用專業權威型語氣，精準、有深度、可信賴" },
 ];
 const COUNTS = [3,4,5,6,7,8,10];
-const TEMPLATES = [
-  { category:"個人品牌", emoji:"🧑‍💼", items:[
-    { name:"為什麼你需要個人品牌", slides:[
-      { title:"沒有個人品牌\n你就是路人甲", hook:"殘酷但真實", body:"" },
-      { title:"品牌 ≠ 有名", body:"品牌是別人提到某件事\n第一個想到你" },
-      { title:"先找到你的「一句話」", body:"如果你只能用一句話介紹自己\n那句話是什麼？" },
-      { title:"持續輸出才是關鍵", body:"不是要你天天發文\n而是讓人持續看見你在做什麼" },
-      { title:"現在就開始", body:"不用等到準備好\n因為永遠不會準備好", cta:"追蹤看更多乾貨" },
-    ]},
-    { name:"打造記憶點的 5 個方法", slides:[
-      { title:"別人憑什麼\n記住你？", hook:"5 個記憶點心法", body:"" },
-      { title:"1. 重複你的核心訊息", body:"講一百次同一句話\n比講一百句不同的話有效" },
-      { title:"2. 視覺風格要統一", body:"配色、字型、排版\n讓人一看就知道是你" },
-      { title:"3. 分享真實故事", body:"完美人設沒人信\n真實的你才有吸引力" },
-      { title:"4. 有觀點不怕得罪人", body:"中立等於透明\n有立場才有記憶點" },
-      { title:"5. 固定節奏出現", body:"消失太久等於重新開始\n穩定比爆發重要", cta:"收藏起來慢慢看" },
-    ]},
-  ]},
-  { category:"時間管理", emoji:"⏰", items:[
-    { name:"自由工作者的時間陷阱", slides:[
-      { title:"自由工作者\n最大的敵人是自由", hook:"時間管理真相", body:"" },
-      { title:"陷阱一：沒有截止日", body:"沒人催你\n你就永遠「明天再說」" },
-      { title:"陷阱二：什麼都想接", body:"每一個 Yes\n都是對其他事情說 No" },
-      { title:"陷阱三：工作生活沒界線", body:"在家工作不代表隨時工作\n也不代表隨時休息" },
-      { title:"解法：時間塊狀化", body:"把一天切成幾個大區塊\n每個區塊只做一類事情" },
-      { title:"自由是需要\n被管理的", body:"管好時間\n才能真正享受自由", cta:"分享給你的自由工作者朋友" },
-    ]},
-    { name:"早起不是重點", slides:[
-      { title:"別再逼自己\n早起了", hook:"反雞湯時間管理", body:"" },
-      { title:"早起 ≠ 高效", body:"如果你是夜貓子\n硬早起只會整天昏沉" },
-      { title:"找到你的黃金時段", body:"每個人精力最好的時段不同\n把最難的事放在那裡" },
-      { title:"減法比加法重要", body:"不是塞更多事進行程\n而是砍掉不該做的事" },
-      { title:"管理精力而非時間", body:"時間對每個人都一樣\n但精力才是真正的貨幣", cta:"認同的留言 +1" },
-    ]},
-  ]},
-  { category:"創業思維", emoji:"🚀", items:[
-    { name:"創業前先問自己這 5 題", slides:[
-      { title:"想創業？\n先回答這 5 題", hook:"省下你一年的彎路", body:"" },
-      { title:"1. 你解決什麼問題？", body:"不是你想賣什麼\n而是別人需要什麼" },
-      { title:"2. 誰願意付錢？", body:"有人按讚不代表有人買單\n先找到願意掏錢的人" },
-      { title:"3. 你能撐多久？", body:"不是能賺多少的問題\n是能虧多久的問題" },
-      { title:"4. 你的護城河是什麼？", body:"如果別人一模一樣也能做\n那你的優勢在哪裡？" },
-      { title:"5. 失敗了你能接受嗎？", body:"想清楚最壞的情況\n還能活下去就放手幹", cta:"存起來反覆看" },
-    ]},
-  ]},
-  { category:"自我成長", emoji:"🌱", items:[
-    { name:"停止自我感動式努力", slides:[
-      { title:"你很努力\n但方向對嗎？", hook:"殘忍的成長真相", body:"" },
-      { title:"忙 ≠ 有產出", body:"很多人把「很忙」當成「很厲害」\n但忙只是一種感覺" },
-      { title:"先定義什麼叫成功", body:"沒有目標的努力\n就像沒有地址的快遞" },
-      { title:"學會放棄不重要的事", body:"精力有限\n每件事都做等於每件事都沒做好" },
-      { title:"做對的事比做對事重要", body:"方向錯了\n跑得越快離目標越遠", cta:"tag 一個需要聽的朋友" },
-    ]},
-    { name:"為什麼你總是三分鐘熱度", slides:[
-      { title:"三分鐘熱度\n不是你的錯", hook:"但你可以改", body:"" },
-      { title:"原因一：目標太大", body:"「我要變很厲害」太模糊\n「每天寫 200 字」才做得到" },
-      { title:"原因二：缺乏回饋", body:"人需要看到進步\n才有動力繼續" },
-      { title:"原因三：環境沒有支撐", body:"一個人硬撐很難\n找到同路人才走得遠" },
-      { title:"祕訣：降低啟動成本", body:"不要等有動力才開始\n開始了才會有動力" },
-      { title:"先做 5 分鐘就好", body:"告訴自己「只做 5 分鐘」\n通常做了就停不下來", cta:"試試看然後回來跟我說" },
-    ]},
-  ]},
-  { category:"社群經營", emoji:"📱", items:[
-    { name:"IG 經營的 5 個迷思", slides:[
-      { title:"你以為的 IG 經營\n跟現實差很多", hook:"5 個常見迷思", body:"" },
-      { title:"迷思一：粉絲多就贏", body:"1000 個鐵粉\n比 10 萬殭屍粉有用一百倍" },
-      { title:"迷思二：要天天發文", body:"品質比頻率重要\n寧可一週一篇好文" },
-      { title:"迷思三：要跟風追熱點", body:"熱點來得快去得也快\n你的核心內容才是長期資產" },
-      { title:"迷思四：美圖就夠了", body:"好看吸引眼球\n但有料才讓人留下來" },
-      { title:"迷思五：演算法決定一切", body:"演算法會變\n但好內容永遠有人要看", cta:"追蹤學更多社群技巧" },
-    ]},
-  ]},
-  { category:"心態語錄", emoji:"💭", items:[
-    { name:"給正在迷茫的你", slides:[
-      { title:"迷茫代表\n你正在成長", hook:"寫給深夜清醒的你", body:"" },
-      { title:"不知道要什麼很正常", body:"人生沒有標準答案\n別用別人的地圖走自己的路" },
-      { title:"允許自己慢下來", body:"不是每個階段都要衝刺\n有時候停下來才看得清方向" },
-      { title:"比較是偷走快樂的賊", body:"你只看到別人的精彩片段\n卻拿來跟自己的幕後花絮比" },
-      { title:"你已經走了很遠了", body:"回頭看看一年前的自己\n你其實進步了很多", cta:"留言告訴我你的感受 ❤️" },
-    ]},
-  ]},
-];
 
 /* ── STATE ── */
-let currentMode = 'ai';
 let themeIdx = 0;
 let toneIdx = 0;
 let slideCount = 5;
 let slides = [];
 let currentSlide = 0;
-let selectedCat = null;
 let editingIdx = null;
 let loadingMsgTimer = null;
+let useGradient = true;
 
 const loadingMsgs = ["正在醞釀靈感中...", "文字正在排列組合...", "AI 正在瘋狂輸出...", "幫你把廢話都刪掉...", "最後收尾潤稿中..."];
 let loadingMsgIdx = 0;
@@ -566,9 +443,7 @@ function init() {
     countRow.appendChild(b);
   });
   // Theme rows
-  ['theme-row-ai','theme-row-tpl','theme-row-preview'].forEach(id => buildThemeRow(id));
-  // Template
-  buildTemplateUI();
+  ['theme-row-ai','theme-row-preview'].forEach(id => buildThemeRow(id));
   applyTheme();
 }
 
@@ -584,56 +459,12 @@ function buildThemeRow(id) {
   });
 }
 
-function buildTemplateUI() {
-  // Category pills
-  const catRow = document.getElementById('tpl-cat-row');
-  catRow.innerHTML = '';
-  const all = document.createElement('button');
-  all.className = 'pill active';
-  all.textContent = '全部';
-  all.onclick = () => { selectedCat=null; filterTemplates(); document.querySelectorAll('#tpl-cat-row .pill').forEach((x,i)=>x.classList.toggle('active',i===0)); };
-  catRow.appendChild(all);
-  TEMPLATES.forEach((cat, ci) => {
-    const b = document.createElement('button');
-    b.className = 'pill';
-    b.textContent = cat.emoji + ' ' + cat.category;
-    b.onclick = () => { selectedCat=cat.category; filterTemplates(); document.querySelectorAll('#tpl-cat-row .pill').forEach((x,i)=>x.classList.toggle('active',i===ci+1)); };
-    catRow.appendChild(b);
-  });
-  filterTemplates();
-}
-
-function filterTemplates() {
-  const list = document.getElementById('tpl-list');
-  list.innerHTML = '';
-  TEMPLATES.filter(cat => !selectedCat || cat.category===selectedCat).forEach(cat => {
-    cat.items.forEach(item => {
-      const b = document.createElement('button');
-      b.className = 'tpl-btn';
-      b.innerHTML = `<div class="tpl-row"><div><div class="tpl-cat-label">${cat.emoji} ${cat.category}</div><div class="tpl-title">${item.name}</div><div class="tpl-pages">${item.slides.length} 頁</div></div><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>`;
-      b.onclick = () => loadTemplate(item.slides);
-      list.appendChild(b);
-    });
-  });
-}
-
 function applyTheme() {
   const t = THEMES[themeIdx];
   document.documentElement.style.setProperty('--accent', t.accent);
-  ['theme-row-ai','theme-row-tpl','theme-row-preview'].forEach(id => {
+  ['theme-row-ai','theme-row-preview'].forEach(id => {
     document.querySelectorAll(`#${id} .theme-btn`).forEach((b,i) => b.classList.toggle('active', i===themeIdx));
   });
-}
-
-/* ── MODE ── */
-function setMode(m) {
-  currentMode = m;
-  document.getElementById('panel-ai').style.display = m==='ai' ? 'block' : 'none';
-  document.getElementById('panel-tpl').style.display = m==='template' ? 'block' : 'none';
-  document.getElementById('btn-ai').classList.toggle('active', m==='ai');
-  document.getElementById('btn-tpl').classList.toggle('active', m==='template');
-  document.getElementById('preview-section').style.display = 'none';
-  slides = []; currentSlide = 0;
 }
 
 /* ── AI GENERATE ── */
@@ -717,7 +548,7 @@ async function generate() {
     }
   }
   setLoading(false);
-  showError('AI 生成失敗：' + (lastErr?.message||'未知錯誤') + '。請確認 API Key 是否正確，或改用模板庫。');
+  showError('AI 生成失敗：' + (lastErr?.message||'未知錯誤') + '。請確認 API Key 是否正確。');
 }
 
 function setLoading(on) {
@@ -738,11 +569,6 @@ function showError(msg) {
 }
 
 /* ── TEMPLATE ── */
-function loadTemplate(tplSlides) {
-  slides = JSON.parse(JSON.stringify(tplSlides));
-  currentSlide = 0;
-  showPreview(true);
-}
 
 /* ── PREVIEW ── */
 function showPreview(showBack) {
@@ -753,9 +579,7 @@ function showPreview(showBack) {
 }
 
 function getBrandName() {
-  return (currentMode==='ai'
-    ? document.getElementById('brandNameAI').value
-    : document.getElementById('brandNameTpl').value) || 'PLUS ONE';
+  return document.getElementById('brandNameAI').value || 'PLUS ONE';
 }
 
 function renderAll() {
@@ -765,6 +589,15 @@ function renderAll() {
   updateNavBtns();
 }
 
+function toggleGradient() {
+  useGradient = !useGradient;
+  const btn = document.getElementById('gradient-toggle-btn');
+  btn.textContent = useGradient ? '🎨 切換：漸層背景' : '⬜ 切換：純色背景';
+  btn.style.color = useGradient ? 'var(--accent)' : 'var(--sub)';
+  btn.style.borderColor = useGradient ? 'var(--accent)' : 'var(--border)';
+  renderAll();
+}
+
 function renderSlide() {
   const s = slides[currentSlide];
   const t = THEMES[themeIdx];
@@ -772,11 +605,19 @@ function renderSlide() {
   const isLast = currentSlide === slides.length - 1;
   const brand = getBrandName();
   const titleSize = isFirst ? '26px' : '22px';
+  const bgGrad = !useGradient ? t.bg
+    : isFirst
+    ? `linear-gradient(145deg, ${t.bg} 10%, ${t.accent}50 100%)`
+    : isLast
+    ? `linear-gradient(225deg, ${t.bg} 10%, ${t.accent}45 100%)`
+    : `linear-gradient(145deg, ${t.bg} 35%, ${t.accent}35 100%)`;
+  const decoOpacity = useGradient ? '55' : '22';
+  const decoOpacity2 = useGradient ? '40' : '11';
 
   document.getElementById('slide-display').innerHTML = `
-    <div class="slide-card" style="background:${t.bg};">
-      <div class="slide-deco-tr" style="background:linear-gradient(135deg,${t.accent}22 0%,transparent 60%)"></div>
-      <div class="slide-deco-bl" style="background:radial-gradient(circle at bottom left,${t.accent}11 0%,transparent 70%)"></div>
+    <div class="slide-card" style="background:${bgGrad};">
+      <div class="slide-deco-tr" style="background:linear-gradient(135deg,${t.accent}${decoOpacity} 0%,transparent 55%)"></div>
+      <div class="slide-deco-bl" style="background:radial-gradient(circle at bottom left,${t.accent}${decoOpacity2} 0%,transparent 65%)"></div>
       <div class="slide-brand" style="color:${t.accent}">${brand}</div>
       <div class="slide-num" style="color:${t.sub}">${String(currentSlide+1).padStart(2,'0')}/${String(slides.length).padStart(2,'0')}</div>
       <div class="slide-content">
@@ -811,8 +652,8 @@ function renderGrid() {
     cell.className = 'grid-item' + (i===currentSlide?' active':'');
     cell.style.borderColor = i===currentSlide ? t.accent : 'transparent';
     cell.innerHTML = `
-      <div class="slide-card" style="background:${t.bg};padding:12px 10px;">
-        <div class="slide-deco-tr" style="background:linear-gradient(135deg,${t.accent}22 0%,transparent 60%)"></div>
+      <div class="slide-card" style="background:${!useGradient ? t.bg : isFirst ? `linear-gradient(145deg,${t.bg} 10%,${t.accent}50 100%)` : isLast ? `linear-gradient(225deg,${t.bg} 10%,${t.accent}45 100%)` : `linear-gradient(145deg,${t.bg} 35%,${t.accent}35 100%)`};padding:12px 10px;">
+        <div class="slide-deco-tr" style="background:linear-gradient(135deg,${t.accent}${useGradient?'55':'22'} 0%,transparent 55%)"></div>
         <div class="slide-brand" style="color:${t.accent};font-size:7px">${brand}</div>
         <div class="slide-num" style="color:${t.sub};font-size:8px">${String(i+1).padStart(2,'0')}/${String(slides.length).padStart(2,'0')}</div>
         <div class="slide-content">
