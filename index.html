@@ -187,6 +187,17 @@
     color:var(--sub); font-size:13px; font-weight:600; transition:all 0.2s;
   }
   .copy-slide-btn.copied { background:color-mix(in srgb,var(--accent) 18%,transparent); color:var(--accent); }
+  .btn-row { display:flex; gap:8px; justify-content:center; margin-top:10px; }
+  .btn-row .copy-slide-btn { margin:0; }
+  .download-btn {
+    display:flex; align-items:center; gap:6px;
+    padding:8px 18px; border-radius:999px;
+    border:1px solid var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent);
+    color:var(--accent); font-size:13px; font-weight:700; transition:all 0.2s; cursor:pointer;
+    font-family:inherit;
+  }
+  .download-btn:active { background:color-mix(in srgb,var(--accent) 25%,transparent); }
+  .download-btn.loading { opacity:0.6; pointer-events:none; }
 
   /* Grid */
   .grid-section { margin-top:24px; }
@@ -194,6 +205,8 @@
   .slides-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:8px; }
   .grid-item { cursor:pointer; border-radius:8px; overflow:hidden; border:2px solid transparent; transition:all 0.2s; opacity:0.55; }
   .grid-item.active { opacity:1; }
+
+  #copy-caption-btn.copied { border-color:var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent); }
 
   /* Edit modal */
   .modal-overlay {
@@ -227,6 +240,7 @@
   .api-key-row { display: flex; gap: 8px; margin-bottom: 16px; }
   .api-key-row input { border-radius: 8px; font-size: 13px; flex: 1; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -315,7 +329,7 @@
       border:1px solid var(--border); background:var(--surface);
       color:var(--sub); font-size:13px; font-weight:700;
       transition:all 0.2s; cursor:pointer;
-    ">🎨 切換：漸層背景</button>
+    ">🎨 漸層背景</button>
   </div>
 
   <div class="slide-wrap">
@@ -329,15 +343,42 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
-    <button class="copy-slide-btn" id="copy-slide-btn" onclick="copySlide()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-      複製這頁文字
-    </button>
+    <div class="btn-row">
+      <button class="copy-slide-btn" id="copy-slide-btn" onclick="copySlide()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        複製文字
+      </button>
+      <button class="download-btn" id="download-btn" onclick="downloadSlide()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下載圖片
+      </button>
+    </div>
   </div>
 
   <div class="grid-section">
     <h3>全部頁面一覽</h3>
     <div class="slides-grid" id="slides-grid"></div>
+  </div>
+
+  <!-- IG CAPTION -->
+  <div id="caption-section" style="display:none; margin-top:28px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+      <span class="label" style="margin:0;">📝 IG 貼文內文</span>
+      <button id="copy-caption-btn" onclick="copyCaption()" style="
+        padding:6px 14px; border-radius:999px; border:1px solid var(--border);
+        background:var(--surface); color:var(--sub); font-size:12px; font-weight:600;
+        font-family:inherit; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:5px;
+      ">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        複製
+      </button>
+    </div>
+    <div id="caption-loading" style="display:none; text-align:center; padding:20px; color:var(--sub); font-size:13px;">✦ 正在撰寫內文...</div>
+    <textarea id="caption-text" rows="10" style="
+      width:100%; background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:14px; color:var(--text); font-size:14px;
+      line-height:1.7; resize:vertical;
+    " placeholder="內文生成中..."></textarea>
   </div>
 </div>
 
@@ -395,7 +436,8 @@ let slides = [];
 let currentSlide = 0;
 let editingIdx = null;
 let loadingMsgTimer = null;
-let useGradient = true;
+let bgMode = 1; // 0=pure 1=gradient 2=image
+let igCaption = '';
 
 const loadingMsgs = ["正在醞釀靈感中...", "文字正在排列組合...", "AI 正在瘋狂輸出...", "幫你把廢話都刪掉...", "最後收尾潤稿中..."];
 let loadingMsgIdx = 0;
@@ -504,11 +546,13 @@ async function generate() {
 5. 內容要有節奏感，讀起來像跟朋友聊天一樣自然
 6. 用繁體中文
 
+7. 每一頁都要提供一個英文圖片搜尋關鍵字（img_keyword），1~3 個英文單字，描述最適合當背景的圖片（例如：honey golden jar、peter pan flying stars、tokyo neon street）
+
 請嚴格按照以下 JSON 格式回覆，不要加任何前綴、後綴、markdown 或解釋：
 [
-  {"title": "封面標題", "hook": "hook標語", "body": ""},
-  {"title": "內容頁標題", "body": "補充說明"},
-  {"title": "CTA標題", "body": "收尾說明", "cta": "按鈕文字"}
+  {"title": "封面標題", "hook": "hook標語", "body": "", "img_keyword": "英文關鍵字"},
+  {"title": "內容頁標題", "body": "補充說明", "img_keyword": "英文關鍵字"},
+  {"title": "CTA標題", "body": "收尾說明", "cta": "按鈕文字", "img_keyword": "英文關鍵字"}
 ]`;
 
   let lastErr = null;
@@ -541,6 +585,7 @@ async function generate() {
       currentSlide = 0;
       setLoading(false);
       showPreview(false);
+      generateCaption(topic, parsed, tonePrompt, apiKey);
       return;
     } catch(e) {
       lastErr = e;
@@ -549,6 +594,78 @@ async function generate() {
   }
   setLoading(false);
   showError('AI 生成失敗：' + (lastErr?.message||'未知錯誤') + '。請確認 API Key 是否正確。');
+}
+
+
+/* ── CAPTION GENERATE ── */
+async function generateCaption(topic, slideData, tonePrompt, apiKey) {
+  const section = document.getElementById('caption-section');
+  const loadingEl = document.getElementById('caption-loading');
+  const textEl = document.getElementById('caption-text');
+  section.style.display = 'block';
+  loadingEl.style.display = 'block';
+  textEl.style.display = 'none';
+  textEl.value = '';
+  igCaption = '';
+
+  const slidesSummary = slideData.map((s,i) => `第${i+1}頁：${s.title}${s.body?' — '+s.body:''}`).join('\n');
+  const captionPrompt = `你是一個 Instagram 內容專家。根據以下輪播貼文的內容，幫我寫一段 IG 貼文內文（caption）。
+
+主題：${topic}
+語氣：${tonePrompt}
+
+輪播內容摘要：
+${slidesSummary}
+
+請寫一段吸引人的 IG 內文，包含：
+1. 開場一句話（勾住讀者，讓人想繼續看）
+2. 2~4 行說明這篇貼文的價值或你的觀點
+3. 一個互動呼籲（例如：你有同感嗎？留言告訴我 👇）
+4. 換行後列出 10~15 個相關的繁體中文 hashtag
+
+格式要求：
+- 用繁體中文
+- 口語自然，不要太正式
+- 段落之間空行
+- hashtag 全部集中在最後，用空格隔開
+- 直接輸出內文，不要任何說明或前綴`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 800,
+        messages: [{ role: 'user', content: captionPrompt }],
+      }),
+    });
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    igCaption = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    textEl.value = igCaption;
+  } catch(e) {
+    igCaption = '';
+    textEl.value = '內文生成失敗，請重新生成一次。';
+  }
+  loadingEl.style.display = 'none';
+  textEl.style.display = 'block';
+  textEl.addEventListener('input', () => { igCaption = textEl.value; });
+}
+
+function copyCaption() {
+  const text = document.getElementById('caption-text').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text);
+  const btn = document.getElementById('copy-caption-btn');
+  btn.classList.add('copied');
+  btn.childNodes[btn.childNodes.length-1].textContent = ' 已複製！';
+  setTimeout(() => { btn.classList.remove('copied'); btn.childNodes[btn.childNodes.length-1].textContent = ' 複製'; }, 1500);
 }
 
 function setLoading(on) {
@@ -590,12 +707,31 @@ function renderAll() {
 }
 
 function toggleGradient() {
-  useGradient = !useGradient;
+  bgMode = (bgMode + 1) % 3;
   const btn = document.getElementById('gradient-toggle-btn');
-  btn.textContent = useGradient ? '🎨 切換：漸層背景' : '⬜ 切換：純色背景';
-  btn.style.color = useGradient ? 'var(--accent)' : 'var(--sub)';
-  btn.style.borderColor = useGradient ? 'var(--accent)' : 'var(--border)';
+  const labels = ['⬜ 純色背景', '🎨 漸層背景', '🖼️ 圖片背景'];
+  btn.textContent = labels[bgMode];
+  btn.style.color = bgMode === 0 ? 'var(--sub)' : 'var(--accent)';
+  btn.style.borderColor = bgMode === 0 ? 'var(--border)' : 'var(--accent)';
   renderAll();
+}
+
+function getSlideBackground(s, t, isFirst, isLast, forGrid) {
+  if (bgMode === 2 && s.img_keyword) {
+    const kw = encodeURIComponent(s.img_keyword);
+    const size = forGrid ? '400x500' : '720x900';
+    const imgUrl = `https://source.unsplash.com/${size}/?${kw}`;
+    return `background-image:url('${imgUrl}');background-size:cover;background-position:center;`;
+  }
+  if (bgMode === 1) {
+    const grad = isFirst
+      ? `linear-gradient(145deg, ${t.bg} 10%, ${t.accent}50 100%)`
+      : isLast
+      ? `linear-gradient(225deg, ${t.bg} 10%, ${t.accent}45 100%)`
+      : `linear-gradient(145deg, ${t.bg} 35%, ${t.accent}35 100%)`;
+    return `background:${grad};`;
+  }
+  return `background:${t.bg};`;
 }
 
 function renderSlide() {
@@ -605,28 +741,29 @@ function renderSlide() {
   const isLast = currentSlide === slides.length - 1;
   const brand = getBrandName();
   const titleSize = isFirst ? '26px' : '22px';
-  const bgGrad = !useGradient ? t.bg
-    : isFirst
-    ? `linear-gradient(145deg, ${t.bg} 10%, ${t.accent}50 100%)`
-    : isLast
-    ? `linear-gradient(225deg, ${t.bg} 10%, ${t.accent}45 100%)`
-    : `linear-gradient(145deg, ${t.bg} 35%, ${t.accent}35 100%)`;
-  const decoOpacity = useGradient ? '55' : '22';
-  const decoOpacity2 = useGradient ? '40' : '11';
+  const bgStyle = getSlideBackground(s, t, isFirst, isLast, false);
+  const decoOpacity = bgMode === 0 ? '22' : '55';
+  const decoOpacity2 = bgMode === 0 ? '11' : '40';
+  const imgOverlay = bgMode === 2 ? `<div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.72) 100%);border-radius:inherit;"></div>` : '';
+  const textColor = bgMode === 2 ? '#ffffff' : t.text;
+  const subColor = bgMode === 2 ? 'rgba(255,255,255,0.82)' : t.sub;
+  const accentColor = bgMode === 2 ? '#ffffff' : t.accent;
+  const ctaColor = bgMode === 2 ? 'rgba(255,255,255,0.9)' : t.accent;
 
   document.getElementById('slide-display').innerHTML = `
-    <div class="slide-card" style="background:${bgGrad};">
+    <div class="slide-card" style="${bgStyle}">
+      ${imgOverlay}
       <div class="slide-deco-tr" style="background:linear-gradient(135deg,${t.accent}${decoOpacity} 0%,transparent 55%)"></div>
       <div class="slide-deco-bl" style="background:radial-gradient(circle at bottom left,${t.accent}${decoOpacity2} 0%,transparent 65%)"></div>
-      <div class="slide-brand" style="color:${t.accent}">${brand}</div>
-      <div class="slide-num" style="color:${t.sub}">${String(currentSlide+1).padStart(2,'0')}/${String(slides.length).padStart(2,'0')}</div>
+      <div class="slide-brand" style="color:${accentColor}">${brand}</div>
+      <div class="slide-num" style="color:${subColor}">${String(currentSlide+1).padStart(2,'0')}/${String(slides.length).padStart(2,'0')}</div>
       <div class="slide-content">
-        ${isFirst && s.hook ? `<div class="slide-hook" style="color:${t.accent}">${s.hook}</div>` : ''}
-        <div class="slide-title" style="font-size:${titleSize};color:${t.text}">${s.title||''}</div>
-        ${s.body ? `<div class="slide-body" style="color:${t.sub}">${s.body}</div>` : ''}
-        ${isLast && s.cta ? `<div class="slide-cta" style="color:${t.accent};border-color:${t.accent}">${s.cta}</div>` : ''}
+        ${isFirst && s.hook ? `<div class="slide-hook" style="color:${accentColor}">${s.hook}</div>` : ''}
+        <div class="slide-title" style="font-size:${titleSize};color:${textColor}">${s.title||''}</div>
+        ${s.body ? `<div class="slide-body" style="color:${subColor}">${s.body}</div>` : ''}
+        ${isLast && s.cta ? `<div class="slide-cta" style="color:${ctaColor};border-color:${ctaColor}">${s.cta}</div>` : ''}
       </div>
-      <div class="slide-bar" style="background:${t.accent}"></div>
+      <div class="slide-bar" style="background:${bgMode===2?'rgba(255,255,255,0.6)':t.accent}"></div>
     </div>`;
 }
 
@@ -652,17 +789,18 @@ function renderGrid() {
     cell.className = 'grid-item' + (i===currentSlide?' active':'');
     cell.style.borderColor = i===currentSlide ? t.accent : 'transparent';
     cell.innerHTML = `
-      <div class="slide-card" style="background:${!useGradient ? t.bg : isFirst ? `linear-gradient(145deg,${t.bg} 10%,${t.accent}50 100%)` : isLast ? `linear-gradient(225deg,${t.bg} 10%,${t.accent}45 100%)` : `linear-gradient(145deg,${t.bg} 35%,${t.accent}35 100%)`};padding:12px 10px;">
-        <div class="slide-deco-tr" style="background:linear-gradient(135deg,${t.accent}${useGradient?'55':'22'} 0%,transparent 55%)"></div>
-        <div class="slide-brand" style="color:${t.accent};font-size:7px">${brand}</div>
-        <div class="slide-num" style="color:${t.sub};font-size:8px">${String(i+1).padStart(2,'0')}/${String(slides.length).padStart(2,'0')}</div>
+      <div class="slide-card" style="${getSlideBackground(s,t,isFirst,isLast,true)}padding:12px 10px;">
+        <div style="position:absolute;inset:0;${bgMode===2?'background:linear-gradient(160deg,rgba(0,0,0,0.5) 0%,rgba(0,0,0,0.68) 100%);':''}border-radius:inherit;pointer-events:none;"></div>
+        <div class="slide-deco-tr" style="background:linear-gradient(135deg,${t.accent}${bgMode===0?'22':'55'} 0%,transparent 55%)"></div>
+        <div class="slide-brand" style="color:${bgMode===2?'#fff':t.accent};font-size:7px">${brand}</div>
+        <div class="slide-num" style="color:${bgMode===2?'rgba(255,255,255,0.8)':t.sub};font-size:8px">${String(i+1).padStart(2,'0')}/${String(slides.length).padStart(2,'0')}</div>
         <div class="slide-content">
-          ${isFirst&&s.hook?`<div class="slide-hook" style="color:${t.accent};font-size:7px;margin-bottom:6px">${s.hook}</div>`:''}
-          <div class="slide-title" style="font-size:${isFirst?'11px':'10px'};color:${t.text};margin-bottom:6px">${s.title||''}</div>
-          ${s.body?`<div class="slide-body" style="color:${t.sub};font-size:9px;line-height:1.5">${s.body}</div>`:''}
-          ${isLast&&s.cta?`<div style="margin-top:8px;display:inline-block;padding:4px 10px;border:1.5px solid ${t.accent};border-radius:999px;font-size:8px;color:${t.accent};font-weight:700">${s.cta}</div>`:''}
+          ${isFirst&&s.hook?`<div class="slide-hook" style="color:${bgMode===2?'#fff':t.accent};font-size:7px;margin-bottom:6px">${s.hook}</div>`:''}
+          <div class="slide-title" style="font-size:${isFirst?'11px':'10px'};color:${bgMode===2?'#fff':t.text};margin-bottom:6px">${s.title||''}</div>
+          ${s.body?`<div class="slide-body" style="color:${bgMode===2?'rgba(255,255,255,0.8)':t.sub};font-size:9px;line-height:1.5">${s.body}</div>`:''}
+          ${isLast&&s.cta?`<div style="margin-top:8px;display:inline-block;padding:4px 10px;border:1.5px solid ${bgMode===2?'rgba(255,255,255,0.9)':t.accent};border-radius:999px;font-size:8px;color:${bgMode===2?'#fff':t.accent};font-weight:700">${s.cta}</div>`:''}
         </div>
-        <div class="slide-bar" style="background:${t.accent}"></div>
+        <div class="slide-bar" style="background:${bgMode===2?'rgba(255,255,255,0.6)':t.accent}"></div>
       </div>`;
     cell.onclick = () => { currentSlide=i; renderAll(); };
     grid.appendChild(cell);
@@ -679,7 +817,34 @@ function nextSlide() { if(currentSlide<slides.length-1){ currentSlide++; renderA
 
 function goBack() {
   document.getElementById('preview-section').style.display = 'none';
-  slides = []; currentSlide = 0;
+  document.getElementById('caption-section').style.display = 'none';
+  slides = []; currentSlide = 0; igCaption = '';
+}
+
+
+/* ── DOWNLOAD IMAGE ── */
+async function downloadSlide() {
+  const btn = document.getElementById('download-btn');
+  btn.classList.add('loading');
+  btn.childNodes[btn.childNodes.length-1].textContent = ' 生成中...';
+  try {
+    const card = document.querySelector('#slide-display .slide-card');
+    const canvas = await html2canvas(card, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false,
+    });
+    const link = document.createElement('a');
+    const brand = getBrandName().replace(/\s+/g, '-');
+    link.download = `${brand}-slide-${String(currentSlide+1).padStart(2,'0')}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('下載失敗，請再試一次');
+  }
+  btn.classList.remove('loading');
+  btn.childNodes[btn.childNodes.length-1].textContent = ' 下載圖片';
 }
 
 /* ── COPY ── */
