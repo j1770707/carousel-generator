@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>PLUS ONE｜AI 內容主管</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -21,22 +22,17 @@
     --ok: #34D399;
   }
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans TC', sans-serif;
-    min-height: 100vh;
-    -webkit-text-size-adjust: 100%;
-    padding-bottom: 60px;
+    background: var(--bg); color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif; min-height: 100vh;
+    -webkit-text-size-adjust: 100%; padding-bottom: 60px;
   }
   button { font-family: inherit; cursor: pointer; }
   input, textarea { font-family: inherit; }
   textarea:focus, input:focus { outline: none; }
   .wrap { max-width: 520px; margin: 0 auto; }
 
-  /* Header */
   .header {
-    padding: 22px 20px 16px;
-    border-bottom: 1px solid #1A1A1F;
+    padding: 22px 20px 16px; border-bottom: 1px solid #1A1A1F;
     background: linear-gradient(180deg, #121216 0%, var(--bg) 100%);
     display: flex; align-items: center; justify-content: space-between;
   }
@@ -47,9 +43,7 @@
     display: flex; align-items: center; justify-content: center; font-size: 20px;
     box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 30%, transparent);
   }
-  .header h1 {
-    font-size: 19px; font-weight: 900; letter-spacing: -0.02em; line-height: 1.1;
-  }
+  .header h1 { font-size: 19px; font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; }
   .header h1 .plus { color: var(--accent); }
   .header p { font-size: 10px; color: var(--dim); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; margin-top: 2px; }
   .plan-badge {
@@ -59,7 +53,6 @@
   }
   .plan-badge.pro { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 
-  /* Tabs */
   .tabs { padding: 14px 20px 0; display: flex; gap: 4px; border-bottom: 1px solid #1A1A1F; }
   .tab {
     flex: 1; padding: 11px 4px 13px; border: none; background: transparent;
@@ -70,154 +63,115 @@
   .tab .ico { font-size: 17px; }
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* Content */
   .content { padding: 22px 20px; }
   .panel { display: none; animation: fade 0.3s ease; }
   .panel.active { display: block; }
   @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  .label {
-    font-size: 11px; font-weight: 700; color: var(--sub);
-    letter-spacing: 0.1em; text-transform: uppercase;
-    display: block; margin-bottom: 8px;
-  }
+  .label { font-size: 11px; font-weight: 700; color: var(--sub); letter-spacing: 0.1em; text-transform: uppercase; display: block; margin-bottom: 8px; }
   .hint { font-size: 12px; color: var(--dim); line-height: 1.6; margin-top: 7px; }
   .hint a { color: var(--accent); text-decoration: none; }
 
   textarea, input[type=text], input[type=password] {
-    width: 100%; background: var(--surface);
-    border: 1px solid var(--border); border-radius: 10px;
-    padding: 13px 14px; color: var(--text); font-size: 15px;
-    transition: border-color 0.2s;
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 13px 14px; color: var(--text); font-size: 15px; transition: border-color 0.2s;
   }
   textarea:focus, input:focus { border-color: var(--accent); }
   textarea { resize: none; line-height: 1.6; }
   .field { margin-bottom: 20px; }
 
-  /* API key row */
   .key-row { display: flex; gap: 8px; align-items: stretch; }
   .key-row input { flex: 1; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
-  .key-save {
-    padding: 0 16px; border-radius: 10px; border: 1px solid var(--border);
-    background: var(--surface); color: var(--sub); font-size: 13px; font-weight: 700;
-    white-space: nowrap; transition: all 0.2s;
-  }
+  .key-save { padding: 0 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--sub); font-size: 13px; font-weight: 700; white-space: nowrap; transition: all 0.2s; }
   .key-save.saved { border-color: var(--ok); color: var(--ok); }
 
-  /* Pills */
   .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
-  .pill {
-    padding: 9px 14px; border-radius: 999px; border: 2px solid var(--border);
-    background: var(--surface); color: var(--sub);
-    font-size: 13px; font-weight: 600; transition: all 0.2s;
-  }
+  .pill { padding: 9px 14px; border-radius: 999px; border: 2px solid var(--border); background: var(--surface); color: var(--sub); font-size: 13px; font-weight: 600; transition: all 0.2s; }
   .pill.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
 
-  /* Primary button */
-  .btn {
-    width: 100%; padding: 15px; border-radius: 12px; border: none;
-    background: linear-gradient(135deg, var(--accent), #C73E00);
-    color: #fff; font-size: 15px; font-weight: 800;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: transform 0.1s, opacity 0.2s; margin-top: 4px;
-  }
+  /* 配色主題選擇 */
+  .theme-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .theme-btn { display: flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface); color: var(--sub); font-size: 12px; font-weight: 600; transition: all 0.2s; }
+  .theme-btn.active { border-color: var(--accent); color: var(--text); }
+  .theme-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+
+  .num-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .num-btn { width: 44px; height: 44px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface); color: var(--sub); font-size: 15px; font-weight: 700; font-family: 'JetBrains Mono', monospace; transition: all 0.2s; }
+  .num-btn.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+  .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), #C73E00); color: #fff; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s, opacity 0.2s; margin-top: 4px; }
   .btn:active { transform: scale(0.98); }
   .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-  .spinner {
-    width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
-  }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Status box */
-  .status {
-    display: none; padding: 12px 14px; border-radius: 10px; font-size: 13px;
-    line-height: 1.7; margin-top: 14px; white-space: pre-wrap;
-  }
+  .status { display: none; padding: 12px 14px; border-radius: 10px; font-size: 13px; line-height: 1.7; margin-top: 14px; white-space: pre-wrap; }
   .status.err { display: block; background: rgba(229,69,96,0.1); border: 1px solid rgba(229,69,96,0.3); color: #FF8DA1; }
   .status.ok { display: block; background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.25); color: var(--ok); }
 
-  /* Style fingerprint card */
-  .fp-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-    padding: 18px; margin-bottom: 20px;
-  }
+  .fp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 20px; }
   .fp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
   .fp-head .t { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 7px; }
   .fp-head .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
   .fp-clear { font-size: 11px; color: var(--dim); background: none; border: none; }
   .fp-body { font-size: 13px; line-height: 1.7; color: var(--sub); white-space: pre-wrap; }
-  .fp-empty {
-    background: var(--surface); border: 1px dashed var(--border); border-radius: 14px;
-    padding: 20px; text-align: center; margin-bottom: 20px;
-  }
+  .fp-empty { background: var(--surface); border: 1px dashed var(--border); border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 20px; }
   .fp-empty .e-ico { font-size: 26px; margin-bottom: 8px; }
   .fp-empty .e-t { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
   .fp-empty .e-s { font-size: 12px; color: var(--dim); line-height: 1.6; }
 
-  /* Output */
-  .output {
-    display: none; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 14px; padding: 18px; margin-top: 20px;
-  }
+  .output { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-top: 20px; }
   .out-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .out-head .t { font-size: 13px; font-weight: 800; color: var(--accent); letter-spacing: 0.05em; }
-  .copy-btn {
-    font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px;
-    border: 1px solid var(--border); background: var(--surface-2); color: var(--sub); transition: all 0.2s;
-  }
+  .copy-btn { font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--sub); transition: all 0.2s; }
   .copy-btn.done { border-color: var(--ok); color: var(--ok); }
   .out-text { font-size: 15px; line-height: 1.85; white-space: pre-wrap; word-break: break-word; }
   .out-divider { height: 1px; background: var(--border); margin: 18px 0; }
-  .out-meta { font-size: 12px; color: var(--dim); line-height: 1.7; }
-  .out-meta b { color: var(--accent); }
 
-  /* Card previews */
-  .cards-scroll {
-    display: flex; gap: 10px; overflow-x: auto; padding: 4px 0 10px;
-    -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory;
+  /* 字卡預覽 */
+  .slide-wrap { position: relative; max-width: 340px; margin: 0 auto; }
+  .slide-card {
+    position: relative; width: 100%; aspect-ratio: 4/5; border-radius: 16px; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 28px 22px; box-sizing: border-box;
   }
-  .cards-scroll::-webkit-scrollbar { height: 5px; }
-  .cards-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  .card-thumb {
-    flex: 0 0 auto; width: 150px; height: 150px; border-radius: 12px;
-    border: 1px solid var(--border); overflow: hidden; position: relative;
-    scroll-snap-align: start; cursor: pointer; transition: transform 0.1s, border-color 0.2s;
-  }
-  .card-thumb:active { transform: scale(0.96); }
-  .card-thumb img { width: 100%; height: 100%; display: block; }
-  .card-thumb .dl-badge {
-    position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.65);
-    color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
-    display: flex; align-items: center; gap: 3px;
-  }
-  .card-thumb .pg-badge {
-    position: absolute; top: 6px; left: 6px; background: var(--accent);
-    color: #fff; font-size: 10px; font-weight: 800; width: 20px; height: 20px;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  }
+  .slide-deco-tr { position: absolute; top:0; right:0; width:80px; height:80px; }
+  .slide-deco-bl { position: absolute; bottom:0; left:0; width:120px; height:120px; }
+  .slide-brand { position: absolute; top:14px; left:18px; font-size:10px; font-family:'JetBrains Mono',monospace; opacity:0.6; letter-spacing:0.15em; text-transform:uppercase; }
+  .slide-num { position: absolute; top:14px; right:18px; font-size:11px; font-family:'JetBrains Mono',monospace; opacity:0.7; }
+  .slide-content { text-align:center; max-width:92%; z-index:1; }
+  .slide-hook { font-size:11px; font-family:'JetBrains Mono',monospace; letter-spacing:0.2em; text-transform:uppercase; margin-bottom:14px; }
+  .slide-title { font-weight:900; line-height:1.35; margin-bottom:14px; letter-spacing:-0.01em; white-space:pre-line; }
+  .slide-body { font-size:14px; line-height:1.7; white-space:pre-line; }
+  .slide-cta { display:inline-block; margin-top:20px; padding:10px 24px; border-radius:999px; border-width:2px; border-style:solid; font-size:13px; font-weight:700; letter-spacing:0.05em; }
+  .slide-bar { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:40px; height:3px; border-radius:3px 3px 0 0; opacity:0.6; }
 
-  /* Usage meter */
-  .usage {
-    display: flex; align-items: center; gap: 10px; margin-top: 18px;
-    padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-  }
+  .nav-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 14px 0 4px; }
+  .nav-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 18px; display: flex; align-items: center; justify-content: center; }
+  .nav-btn:disabled { opacity: 0.3; }
+  .dots-row { display: flex; gap: 6px; align-items: center; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; border: none; background: var(--border); padding: 0; }
+  .dot.active { background: var(--accent); width: 18px; border-radius: 4px; }
+
+  .slides-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px,1fr)); gap: 8px; margin-top: 14px; }
+  .grid-item { border-radius: 8px; overflow: hidden; border: 2px solid transparent; cursor: pointer; }
+  .grid-item .slide-card { border-radius: 6px; padding: 10px 8px; aspect-ratio: 4/5; }
+
+  .action-row { display: flex; gap: 8px; margin-top: 14px; }
+  .action-btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; }
+  .action-btn.primary { background: linear-gradient(135deg, var(--accent), #C73E00); color: #fff; }
+  .action-btn.gray { background: var(--surface-2); border: 1px solid var(--border); color: var(--sub); }
+  .toggle-btn { width: 100%; margin-top: 10px; padding: 11px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--sub); font-size: 13px; font-weight: 600; }
+
+  .usage { display: flex; align-items: center; gap: 10px; margin-top: 18px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
   .usage .bar { flex: 1; height: 6px; border-radius: 3px; background: #222; overflow: hidden; }
   .usage .fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s; }
   .usage .txt { font-size: 11px; color: var(--sub); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
   .upgrade-link { font-size: 11px; color: var(--accent); font-weight: 700; background: none; border: none; white-space: nowrap; }
 
-  /* Modal */
-  .modal-bg {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-    z-index: 100; align-items: center; justify-content: center; padding: 20px;
-    backdrop-filter: blur(4px);
-  }
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
   .modal-bg.open { display: flex; }
-  .modal {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
-    padding: 26px 22px; max-width: 380px; width: 100%; animation: pop 0.25s ease;
-  }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 26px 22px; max-width: 380px; width: 100%; animation: pop 0.25s ease; }
   @keyframes pop { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: none; } }
   .modal .m-ico { font-size: 30px; text-align: center; margin-bottom: 10px; }
   .modal h2 { font-size: 20px; font-weight: 900; text-align: center; margin-bottom: 6px; }
@@ -229,11 +183,7 @@
   .perks li { font-size: 14px; padding: 7px 0; display: flex; align-items: flex-start; gap: 9px; }
   .perks li .ck { color: var(--ok); font-weight: 900; flex-shrink: 0; }
   .modal-actions { display: flex; flex-direction: column; gap: 9px; }
-  .m-primary {
-    width: 100%; padding: 14px; border-radius: 11px; border: none;
-    background: linear-gradient(135deg, var(--accent), #C73E00); color: #fff;
-    font-size: 15px; font-weight: 800;
-  }
+  .m-primary { width: 100%; padding: 14px; border-radius: 11px; border: none; background: linear-gradient(135deg, var(--accent), #C73E00); color: #fff; font-size: 15px; font-weight: 800; }
   .m-ghost { width: 100%; padding: 11px; border-radius: 11px; border: none; background: none; color: var(--dim); font-size: 13px; font-weight: 600; }
 
   .footer { text-align: center; padding: 24px 20px; font-size: 10px; color: #333; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
@@ -254,20 +204,13 @@
   </div>
 
   <div class="tabs">
-    <button class="tab active" data-tab="train" onclick="switchTab('train')">
-      <span class="ico">🎯</span><span>語氣訓練</span>
-    </button>
-    <button class="tab" data-tab="gen" onclick="switchTab('gen')">
-      <span class="ico">✨</span><span>生成貼文</span>
-    </button>
-    <button class="tab" data-tab="viral" onclick="switchTab('viral')">
-      <span class="ico">🔥</span><span>爆款拆解</span>
-    </button>
+    <button class="tab active" data-tab="train" onclick="switchTab('train')"><span class="ico">🎯</span><span>語氣訓練</span></button>
+    <button class="tab" data-tab="gen" onclick="switchTab('gen')"><span class="ico">✨</span><span>生成貼文</span></button>
+    <button class="tab" data-tab="viral" onclick="switchTab('viral')"><span class="ico">🔥</span><span>爆款拆解</span></button>
   </div>
 
   <div class="content">
 
-    <!-- API KEY (shared) -->
     <div class="field">
       <label class="label">Anthropic API Key</label>
       <div class="key-row">
@@ -277,16 +220,14 @@
       <p class="hint">Key 只存在你的瀏覽器，不會上傳。還沒有？<a href="https://console.anthropic.com" target="_blank">前往 console.anthropic.com 免費取得</a></p>
     </div>
 
-    <!-- ===== TAB 1: TRAIN ===== -->
+    <!-- TAB 1: TRAIN -->
     <div class="panel active" id="panel-train">
       <div id="fp-display"></div>
-
       <div class="field">
         <label class="label">貼上你的 3～5 篇舊貼文</label>
-        <textarea id="samples" rows="9" placeholder="把你以前寫過、覺得最像「你」的貼文貼進來。&#10;&#10;每篇之間用 --- 隔開，例如：&#10;&#10;第一篇貼文內容...&#10;---&#10;第二篇貼文內容...&#10;---&#10;第三篇貼文內容..."></textarea>
+        <textarea id="samples" rows="9" placeholder="把你以前寫過、覺得最像「你」的貼文貼進來。&#10;&#10;每篇之間用 --- 隔開。"></textarea>
         <p class="hint">越能代表你說話方式的貼文越好。AI 會學你的用詞、節奏、語氣、口頭禪。</p>
       </div>
-
       <button class="btn" id="trainBtn" onclick="trainStyle()">
         <span class="spinner" id="trainSpinner"></span>
         <span id="trainBtnText">🎯 分析我的語氣風格</span>
@@ -294,21 +235,27 @@
       <div class="status" id="trainStatus"></div>
     </div>
 
-    <!-- ===== TAB 2: GENERATE ===== -->
+    <!-- TAB 2: GENERATE -->
     <div class="panel" id="panel-gen">
       <div class="field">
         <label class="label">發佈平台</label>
         <div class="pill-row" id="platform-row"></div>
       </div>
-
       <div class="field">
         <label class="label">主題 / 想講什麼</label>
         <textarea id="genTopic" rows="3" placeholder="例：分享我當婚禮主持人最常被問的 3 個問題"></textarea>
       </div>
-
       <div class="field">
         <label class="label">貼文目的</label>
         <div class="pill-row" id="goal-row"></div>
+      </div>
+      <div class="field">
+        <label class="label">字卡配色</label>
+        <div class="theme-row" id="theme-row"></div>
+      </div>
+      <div class="field">
+        <label class="label">頁數</label>
+        <div class="num-row" id="num-row"></div>
       </div>
 
       <button class="btn" id="genBtn" onclick="generatePost()">
@@ -333,31 +280,34 @@
 
         <div class="out-divider"></div>
 
-        <div class="out-head">
-          <span class="t">🖼️ 輪播圖卡（點圖可下載）</span>
-          <button class="copy-btn" id="dlAllBtn" onclick="downloadAllCards()">下載全部</button>
+        <div class="out-head"><span class="t">🖼️ 輪播圖卡</span></div>
+        <div class="slide-wrap"><div id="slide-display"></div></div>
+        <div class="nav-row">
+          <button class="nav-btn" id="prev-btn" onclick="prevSlide()">‹</button>
+          <div class="dots-row" id="dots-row"></div>
+          <button class="nav-btn" id="next-btn" onclick="nextSlide()">›</button>
         </div>
-        <div class="cards-scroll" id="cardsScroll"></div>
-        <p class="hint">每張都是 1080×1080 正方形，點縮圖就能存成 PNG 發 IG。手機長按圖片也可以直接儲存。</p>
+        <button class="toggle-btn" id="gradient-toggle-btn" onclick="toggleGradient()">🎨 切換：漸層背景</button>
+        <div class="action-row">
+          <button class="action-btn primary" id="dl-btn" onclick="downloadSlide()">⬇ 下載這頁</button>
+          <button class="action-btn gray" id="dl-all-btn" onclick="downloadAll()">⬇ 下載全部</button>
+        </div>
+        <div class="slides-grid" id="slides-grid"></div>
+        <p class="hint">每張都是 1080×1350（IG 直式），點縮圖切換、按下載存成 PNG。</p>
       </div>
     </div>
 
-    <!-- 隱藏的繪圖畫布 -->
-    <canvas id="cardCanvas" width="1080" height="1080" style="display:none;"></canvas>
-
-    <!-- ===== TAB 3: VIRAL ===== -->
+    <!-- TAB 3: VIRAL -->
     <div class="panel" id="panel-viral">
       <div class="field">
         <label class="label">貼上一篇表現好的貼文</label>
-        <textarea id="viralInput" rows="8" placeholder="貼上任何一篇互動率高、你覺得「爆」了的貼文（你自己的或別人的都可以）。&#10;&#10;AI 會幫你拆解它為什麼會紅，把可複製的結構抓出來。"></textarea>
+        <textarea id="viralInput" rows="8" placeholder="貼上任何一篇你覺得「爆」了的貼文，AI 幫你拆解它為什麼會紅。"></textarea>
       </div>
-
       <button class="btn" id="viralBtn" onclick="analyzeViral()">
         <span class="spinner" id="viralSpinner"></span>
         <span id="viralBtnText">🔥 拆解爆款結構</span>
       </button>
       <div class="status" id="viralStatus"></div>
-
       <div class="output" id="viralOutput">
         <div class="out-head">
           <span class="t">🔍 爆款結構拆解</span>
@@ -372,16 +322,12 @@
   <div class="footer">PLUS ONE · 我不多，只多一點，但這一點，就是無限</div>
 </div>
 
-<!-- UPGRADE MODAL -->
 <div class="modal-bg" id="upgradeModal">
   <div class="modal">
     <div class="m-ico">⚡</div>
     <h2>升級 PLUS ONE PRO</h2>
     <p class="m-sub">解鎖無限生成，讓你的 AI 內容主管全天候待命</p>
-    <div class="price-row">
-      <span class="num">NT$299</span>
-      <span class="unit">/ 月</span>
-    </div>
+    <div class="price-row"><span class="num">NT$299</span><span class="unit">/ 月</span></div>
     <ul class="perks">
       <li><span class="ck">✓</span> 無限次數生成貼文</li>
       <li><span class="ck">✓</span> 儲存多組語氣風格</li>
@@ -397,62 +343,90 @@
 
 <script>
 /* ═══════════ CONFIG ═══════════ */
-const MODEL = 'claude-sonnet-4-6';  // 目前可用模型，舊的 claude-sonnet-4-20250514 已退役
-const FREE_DAILY_LIMIT = 3;
-const LS = {
-  key: 'p1_apikey',
-  fp: 'p1_fingerprint',
-  plan: 'p1_plan',
-  usage: 'p1_usage',
-};
+var MODEL = 'claude-sonnet-4-6';
+var FREE_DAILY_LIMIT = 3;
+var LS = { key:'p1_apikey', fp:'p1_fingerprint', plan:'p1_plan', usage:'p1_usage' };
 
-const PLATFORMS = [
-  { label:'Instagram', value:'instagram', emoji:'📸', note:'適合短句、有畫面感、結尾放 hashtag' },
-  { label:'Threads', value:'threads', emoji:'🧵', note:'口語、互動性強、可以是串文、結尾拋問題' },
-  { label:'Facebook', value:'facebook', emoji:'👥', note:'可以較長、說故事、有溫度、引導留言' },
+var PLATFORMS = [
+  { label:'Instagram', value:'instagram', emoji:'📸' },
+  { label:'Threads', value:'threads', emoji:'🧵' },
+  { label:'Facebook', value:'facebook', emoji:'👥' },
 ];
-const GOALS = [
+var GOALS = [
   { label:'增加互動', value:'engagement' },
   { label:'建立專業', value:'authority' },
   { label:'說個故事', value:'story' },
-  { label:'導購 / CTA', value:'convert' },
+  { label:'導購 CTA', value:'convert' },
+];
+var THEMES = [
+  { bg:"#0D0D0D", accent:"#FF6B35", text:"#FAFAFA", sub:"#B0B0B0", name:"暗夜橘焰" },
+  { bg:"#1A1A2E", accent:"#E94560", text:"#FAFAFA", sub:"#A0A0C0", name:"深海紅珊" },
+  { bg:"#FEFCF3", accent:"#2D4A3E", text:"#1A1A1A", sub:"#6B7B6E", name:"奶油森林" },
+  { bg:"#0B0C10", accent:"#66FCF1", text:"#FAFAFA", sub:"#8B9DA5", name:"賽博青光" },
+  { bg:"#2B2D42", accent:"#EDF2F4", text:"#FAFAFA", sub:"#8D99AE", name:"冷鋼灰白" },
+  { bg:"#FFF8E7", accent:"#FF4057", text:"#1A1A1A", sub:"#8C7A6B", name:"暖陽赤紅" },
 ];
 
 /* ═══════════ STATE ═══════════ */
-let platformIdx = 0;
-let goalIdx = 0;
-let fingerprint = '';
+var platformIdx = 0, goalIdx = 0, themeIdx = 0, slideCount = 5;
+var fingerprint = '';
+var slides = [], currentSlide = 0, useGradient = true;
 
 /* ═══════════ INIT ═══════════ */
 function init() {
-  // restore key
-  const savedKey = localStorage.getItem(LS.key);
-  if (savedKey) {
-    document.getElementById('apiKey').value = savedKey;
-    markKeySaved();
-  }
-  // restore fingerprint
+  var savedKey = localStorage.getItem(LS.key);
+  if (savedKey) { document.getElementById('apiKey').value = savedKey; markKeySaved(); }
   fingerprint = localStorage.getItem(LS.fp) || '';
   renderFingerprint();
-  // restore plan
   renderPlan();
-  // build pills
-  buildPills('platform-row', PLATFORMS, i => platformIdx = i);
-  buildPills('goal-row', GOALS, i => goalIdx = i);
-  // usage
+  buildPills('platform-row', PLATFORMS, function(i){ platformIdx = i; });
+  buildPills('goal-row', GOALS, function(i){ goalIdx = i; });
+  buildThemes();
+  buildCounts();
   renderUsage();
 }
-
 function buildPills(rowId, items, onSelect) {
-  const row = document.getElementById(rowId);
+  var row = document.getElementById(rowId);
   row.innerHTML = '';
-  items.forEach((it, i) => {
-    const b = document.createElement('button');
+  items.forEach(function(it, i){
+    var b = document.createElement('button');
     b.className = 'pill' + (i===0 ? ' active' : '');
     b.textContent = (it.emoji ? it.emoji + ' ' : '') + it.label;
-    b.onclick = () => {
+    b.onclick = function(){
       onSelect(i);
-      row.querySelectorAll('.pill').forEach((x,j) => x.classList.toggle('active', j===i));
+      var pills = row.querySelectorAll('.pill');
+      for (var j=0;j<pills.length;j++) pills[j].classList.toggle('active', j===i);
+    };
+    row.appendChild(b);
+  });
+}
+function buildThemes() {
+  var row = document.getElementById('theme-row');
+  row.innerHTML = '';
+  THEMES.forEach(function(t, i){
+    var b = document.createElement('button');
+    b.className = 'theme-btn' + (i===0 ? ' active' : '');
+    b.innerHTML = '<span class="theme-dot" style="background:linear-gradient(135deg,' + t.bg + ',' + t.accent + ')"></span>' + t.name;
+    b.onclick = function(){
+      themeIdx = i;
+      var btns = row.querySelectorAll('.theme-btn');
+      for (var j=0;j<btns.length;j++) btns[j].classList.toggle('active', j===i);
+      if (slides.length) renderAll();
+    };
+    row.appendChild(b);
+  });
+}
+function buildCounts() {
+  var row = document.getElementById('num-row');
+  row.innerHTML = '';
+  [3,4,5,6,7,8].forEach(function(n){
+    var b = document.createElement('button');
+    b.className = 'num-btn' + (n===5 ? ' active' : '');
+    b.textContent = n;
+    b.onclick = function(){
+      slideCount = n;
+      var btns = row.querySelectorAll('.num-btn');
+      for (var j=0;j<btns.length;j++) btns[j].classList.toggle('active', +btns[j].textContent===n);
     };
     row.appendChild(b);
   });
@@ -460,107 +434,78 @@ function buildPills(rowId, items, onSelect) {
 
 /* ═══════════ TABS ═══════════ */
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===name));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  var tabs = document.querySelectorAll('.tab');
+  for (var i=0;i<tabs.length;i++) tabs[i].classList.toggle('active', tabs[i].dataset.tab===name);
+  var panels = document.querySelectorAll('.panel');
+  for (var k=0;k<panels.length;k++) panels[k].classList.remove('active');
   document.getElementById('panel-'+name).classList.add('active');
 }
 
 /* ═══════════ API KEY ═══════════ */
 function saveKey() {
-  const k = document.getElementById('apiKey').value.trim();
+  var k = document.getElementById('apiKey').value.trim();
   if (!k) return;
   localStorage.setItem(LS.key, k);
   markKeySaved();
 }
 function markKeySaved() {
-  const btn = document.getElementById('keySaveBtn');
-  btn.textContent = '✓ 已記住';
-  btn.classList.add('saved');
-  setTimeout(() => { btn.textContent = '已記住'; }, 1500);
+  var btn = document.getElementById('keySaveBtn');
+  btn.textContent = '✓ 已記住'; btn.classList.add('saved');
+  setTimeout(function(){ btn.textContent = '已記住'; }, 1500);
 }
 function getKey() { return document.getElementById('apiKey').value.trim(); }
 
 /* ═══════════ PLAN / USAGE ═══════════ */
 function isPro() { return localStorage.getItem(LS.plan) === 'pro'; }
 function renderPlan() {
-  const badge = document.getElementById('planBadge');
+  var badge = document.getElementById('planBadge');
   if (isPro()) { badge.textContent = '⚡ PRO'; badge.classList.add('pro'); }
   else { badge.textContent = '免費版'; badge.classList.remove('pro'); }
   document.getElementById('usageMeter').style.display = isPro() ? 'none' : 'flex';
 }
 function todayKey() { return new Date().toISOString().slice(0,10); }
 function getUsage() {
-  try {
-    const u = JSON.parse(localStorage.getItem(LS.usage) || '{}');
-    if (u.date !== todayKey()) return 0;
-    return u.count || 0;
-  } catch { return 0; }
+  try { var u = JSON.parse(localStorage.getItem(LS.usage) || '{}'); if (u.date !== todayKey()) return 0; return u.count || 0; }
+  catch(e) { return 0; }
 }
 function bumpUsage() {
-  const c = getUsage() + 1;
+  var c = getUsage() + 1;
   localStorage.setItem(LS.usage, JSON.stringify({ date: todayKey(), count: c }));
   renderUsage();
 }
 function renderUsage() {
-  const used = getUsage();
-  const pct = Math.min(100, (used / FREE_DAILY_LIMIT) * 100);
+  var used = getUsage();
+  var pct = Math.min(100, (used / FREE_DAILY_LIMIT) * 100);
   document.getElementById('usageFill').style.width = pct + '%';
-  document.getElementById('usageText').textContent = `今日 ${used}/${FREE_DAILY_LIMIT}`;
+  document.getElementById('usageText').textContent = '今日 ' + used + '/' + FREE_DAILY_LIMIT;
 }
-function canGenerate() {
-  if (isPro()) return true;
-  return getUsage() < FREE_DAILY_LIMIT;
-}
+function canGenerate() { if (isPro()) return true; return getUsage() < FREE_DAILY_LIMIT; }
 
-/* ═══════════ UPGRADE MODAL ═══════════ */
+/* ═══════════ UPGRADE ═══════════ */
 function openUpgrade() { document.getElementById('upgradeModal').classList.add('open'); }
 function closeUpgrade() { document.getElementById('upgradeModal').classList.remove('open'); }
-function mockUpgrade() {
-  // 雛形：之後這裡接金流（綠界 / Stripe / TapPay）
-  localStorage.setItem(LS.plan, 'pro');
-  renderPlan();
-  closeUpgrade();
-}
+function mockUpgrade() { localStorage.setItem(LS.plan, 'pro'); renderPlan(); closeUpgrade(); }
 
-/* ═══════════ FINGERPRINT DISPLAY ═══════════ */
+/* ═══════════ FINGERPRINT ═══════════ */
 function renderFingerprint() {
-  const box = document.getElementById('fp-display');
+  var box = document.getElementById('fp-display');
   if (fingerprint) {
-    box.innerHTML = `
-      <div class="fp-card">
-        <div class="fp-head">
-          <span class="t"><span class="dot"></span>AI 已學會你的語氣</span>
-          <button class="fp-clear" onclick="clearFingerprint()">清除重訓</button>
-        </div>
-        <div class="fp-body">${escapeHtml(fingerprint)}</div>
-      </div>`;
+    box.innerHTML = '<div class="fp-card"><div class="fp-head"><span class="t"><span class="dot"></span>AI 已學會你的語氣</span><button class="fp-clear" onclick="clearFingerprint()">清除重訓</button></div><div class="fp-body">' + escapeHtml(fingerprint) + '</div></div>';
   } else {
-    box.innerHTML = `
-      <div class="fp-empty">
-        <div class="e-ico">🧬</div>
-        <div class="e-t">還沒有你的語氣檔案</div>
-        <div class="e-s">貼上幾篇舊貼文，AI 會學起來並記住，<br>之後生成的貼文就會「像你寫的」。</div>
-      </div>`;
+    box.innerHTML = '<div class="fp-empty"><div class="e-ico">🧬</div><div class="e-t">還沒有你的語氣檔案</div><div class="e-s">貼上幾篇舊貼文，AI 會學起來並記住，<br>之後生成的貼文就會「像你寫的」。</div></div>';
   }
 }
-function clearFingerprint() {
-  fingerprint = '';
-  localStorage.removeItem(LS.fp);
-  renderFingerprint();
-}
+function clearFingerprint() { fingerprint = ''; localStorage.removeItem(LS.fp); renderFingerprint(); }
 
-/* ═══════════ ANTHROPIC API CALL ═══════════ */
+/* ═══════════ API CALL ═══════════ */
 async function callClaude(prompt, maxTokens) {
-  const apiKey = getKey();
+  var apiKey = getKey();
   if (!apiKey) throw new Error('請先輸入並記住你的 API Key');
-  if (!apiKey.startsWith('sk-ant-')) {
-    throw new Error('API Key 格式怪怪的，正常應該是 sk-ant-api03- 開頭。請重新複製貼上。');
-  }
+  if (apiKey.indexOf('sk-ant-') !== 0) throw new Error('API Key 格式怪怪的，正常應該是 sk-ant-api03- 開頭。請重新複製貼上。');
 
-  let lastErr = null;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    // 第一階段：把請求送出去（fetch 本身失敗 = 網路 / 瀏覽器層問題）
-    let res;
+  var lastErr = null;
+  for (var attempt = 0; attempt < 2; attempt++) {
+    var res;
     try {
       res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -570,14 +515,9 @@ async function callClaude(prompt, maxTokens) {
           'anthropic-version': '2023-06-01',
           'anthropic-dangerous-direct-browser-access': 'true',
         },
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: maxTokens || 1200,
-          messages: [{ role: 'user', content: prompt }],
-        }),
+        body: JSON.stringify({ model: MODEL, max_tokens: maxTokens || 1200, messages: [{ role:'user', content: prompt }] }),
       });
     } catch (netErr) {
-      // 這裡會抓到 iOS Safari 的 "Type error" / "Load failed"
       lastErr = new Error(
         '連不到 API（請求沒送出去）。最可能原因：\n' +
         '① 你是用 App 內建瀏覽器開的（LINE/IG/FB），請改用 Safari 開\n' +
@@ -585,396 +525,290 @@ async function callClaude(prompt, maxTokens) {
         '③ 開了內容阻擋器 / VPN，先關掉試試\n' +
         '（技術細節：' + (netErr.name || 'Error') + ' - ' + (netErr.message || '無') + '）'
       );
-      if (attempt === 0) { await new Promise(r=>setTimeout(r,1500)); continue; }
+      if (attempt === 0) { await new Promise(function(r){ setTimeout(r,1500); }); continue; }
       throw lastErr;
     }
-
-    // 第二階段：API 有回應，但回了錯誤碼
     if (!res.ok) {
-      let detail = '';
-      try {
-        const j = await res.json();
-        detail = (j.error && j.error.message) ? j.error.message : JSON.stringify(j);
-      } catch { detail = await res.text().catch(()=>''); }
-
-      if (res.status === 401) {
-        throw new Error('API Key 無效或被拒絕（401）。請到 console.anthropic.com 重新產生一把 Key 再貼上。');
-      }
-      if (res.status === 429) {
-        throw new Error('額度不足或太頻繁（429）。檢查 console.anthropic.com 的餘額，或等幾秒再試。');
-      }
-      if (res.status === 400 && /model/i.test(detail)) {
-        throw new Error('模型名稱可能過期（400）。詳情：' + detail.slice(0,160));
-      }
-      // 5xx 等暫時性錯誤才重試
-      if (res.status >= 500 && attempt === 0) {
-        lastErr = new Error('API 暫時出錯（' + res.status + '），重試中...');
-        await new Promise(r=>setTimeout(r,1500));
-        continue;
-      }
+      var detail = '';
+      try { var j = await res.json(); detail = (j.error && j.error.message) ? j.error.message : JSON.stringify(j); }
+      catch(e) { detail = await res.text().catch(function(){ return ''; }); }
+      if (res.status === 401) throw new Error('API Key 無效或被拒絕（401）。請到 console.anthropic.com 重新產生一把 Key 再貼上。');
+      if (res.status === 429) throw new Error('額度不足或太頻繁（429）。檢查 console.anthropic.com 的餘額，或等幾秒再試。');
+      if (res.status === 400 && /model/i.test(detail)) throw new Error('模型名稱可能過期（400）。詳情：' + detail.slice(0,160));
+      if (res.status >= 500 && attempt === 0) { lastErr = new Error('API 暫時出錯（' + res.status + '）'); await new Promise(function(r){ setTimeout(r,1500); }); continue; }
       throw new Error('API 回傳錯誤（' + res.status + '）：' + detail.slice(0,160));
     }
-
-    // 第三階段：成功，解析內容
-    const data = await res.json();
-    const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    var data = await res.json();
+    var text = (data.content||[]).filter(function(b){ return b.type==='text'; }).map(function(b){ return b.text; }).join('').trim();
     if (!text) throw new Error('API 回傳了空內容，請再試一次。');
     return text;
   }
   throw lastErr || new Error('未知錯誤');
 }
 
-/* ═══════════ LOADING HELPERS ═══════════ */
+/* ═══════════ LOADING / STATUS ═══════════ */
 function setLoading(btnId, spinnerId, textId, on, idleText, loadingTexts) {
-  const btn = document.getElementById(btnId);
-  const sp = document.getElementById(spinnerId);
-  const txt = document.getElementById(textId);
-  btn.disabled = on;
-  sp.style.display = on ? 'block' : 'none';
-  if (on) {
-    let i = 0;
-    txt.textContent = loadingTexts[0];
-    btn._timer = setInterval(() => { i = (i+1)%loadingTexts.length; txt.textContent = loadingTexts[i]; }, 2000);
-  } else {
-    clearInterval(btn._timer);
-    txt.textContent = idleText;
-  }
+  var btn = document.getElementById(btnId), sp = document.getElementById(spinnerId), txt = document.getElementById(textId);
+  btn.disabled = on; sp.style.display = on ? 'block' : 'none';
+  if (on) { var i = 0; txt.textContent = loadingTexts[0]; btn._timer = setInterval(function(){ i=(i+1)%loadingTexts.length; txt.textContent = loadingTexts[i]; }, 2000); }
+  else { clearInterval(btn._timer); txt.textContent = idleText; }
 }
-function showStatus(id, msg, type) {
-  const el = document.getElementById(id);
-  el.className = 'status ' + type;
-  el.textContent = msg;
-}
+function showStatus(id, msg, type) { var el = document.getElementById(id); el.className = 'status ' + type; el.textContent = msg; }
 function hideStatus(id) { document.getElementById(id).className = 'status'; }
 
-/* ═══════════ FEATURE 1: TRAIN STYLE ═══════════ */
+/* ═══════════ FEATURE 1: TRAIN ═══════════ */
 async function trainStyle() {
-  const samples = document.getElementById('samples').value.trim();
+  var samples = document.getElementById('samples').value.trim();
   hideStatus('trainStatus');
   if (!getKey()) { showStatus('trainStatus', '請先輸入並記住你的 API Key', 'err'); return; }
   if (samples.length < 30) { showStatus('trainStatus', '請至少貼上一兩篇有內容的貼文', 'err'); return; }
-
-  setLoading('trainBtn','trainSpinner','trainBtnText', true, '🎯 分析我的語氣風格',
-    ['正在閱讀你的貼文...', '抓出你的用詞習慣...', '分析你的語氣節奏...', '建立你的語氣檔案...']);
-
-  const prompt = `你是一個專業的文字風格分析師。以下是某位創作者寫過的幾篇社群貼文（用 --- 分隔）。
-
-請仔細分析他的「個人語氣指紋」，包含這幾個面向：
-1. 語氣與態度（例如：口語/正式、熱情/冷靜、犀利/溫暖）
-2. 常用的句型與節奏（例如：短句多/長句多、愛用問句、愛用破折號或省略號）
-3. 用詞特色與口頭禪（列出實際出現的特色詞彙）
-4. 標點與排版習慣（例如：常用 emoji、換行方式、是否用 hashtag）
-5. 整體人設感覺（一句話總結這個人給人的感覺）
-
-請用繁體中文，寫成一段精煉好讀的「語氣檔案」，分點條列，每點一兩句話，總長度控制在 250 字以內。不要加任何開場白或結尾，直接給檔案內容。
-
-以下是貼文：
-${samples}`;
-
+  setLoading('trainBtn','trainSpinner','trainBtnText', true, '🎯 分析我的語氣風格', ['正在閱讀你的貼文...','抓出你的用詞習慣...','分析你的語氣節奏...','建立你的語氣檔案...']);
+  var prompt = '你是一個專業的文字風格分析師。以下是某位創作者寫過的幾篇社群貼文（用 --- 分隔）。\n\n' +
+    '請分析他的「個人語氣指紋」：\n1. 語氣與態度\n2. 常用句型與節奏\n3. 用詞特色與口頭禪（列出實際出現的特色詞彙）\n4. 標點與排版習慣\n5. 整體人設感覺（一句話總結）\n\n' +
+    '請用繁體中文，寫成精煉好讀的「語氣檔案」，分點條列，總長度 250 字以內。不要開場白或結尾，直接給檔案內容。\n\n以下是貼文：\n' + samples;
   try {
-    const result = await callClaude(prompt, 800);
+    var result = await callClaude(prompt, 800);
     fingerprint = result;
     localStorage.setItem(LS.fp, result);
     renderFingerprint();
-    showStatus('trainStatus', '✓ 學好了！現在去「生成貼文」分頁，產出的內容就會像你寫的。', 'ok');
+    showStatus('trainStatus', '✓ 學好了！去「生成貼文」分頁，產出的內容就會像你寫的。', 'ok');
     document.getElementById('samples').value = '';
-  } catch(e) {
-    showStatus('trainStatus', '分析失敗：' + e.message, 'err');
-  } finally {
-    setLoading('trainBtn','trainSpinner','trainBtnText', false, '🎯 分析我的語氣風格', []);
-  }
+  } catch(e) { showStatus('trainStatus', '分析失敗：' + e.message, 'err'); }
+  finally { setLoading('trainBtn','trainSpinner','trainBtnText', false, '🎯 分析我的語氣風格', []); }
 }
 
-/* ═══════════ FEATURE 2: GENERATE POST + CARDS ═══════════ */
-let generatedCards = [];  // 存每張卡的 dataURL，給「下載全部」用
-
+/* ═══════════ FEATURE 2: GENERATE + CARDS ═══════════ */
 async function generatePost() {
-  const topic = document.getElementById('genTopic').value.trim();
+  var topic = document.getElementById('genTopic').value.trim();
   hideStatus('genStatus');
   document.getElementById('genOutput').style.display = 'none';
   if (!getKey()) { showStatus('genStatus', '請先輸入並記住你的 API Key', 'err'); return; }
   if (!topic) { showStatus('genStatus', '請先輸入你想講什麼', 'err'); return; }
   if (!canGenerate()) { openUpgrade(); return; }
 
-  setLoading('genBtn','genSpinner','genBtnText', true, '✨ 用我的風格生成',
-    ['正在套用你的語氣...', '組織輪播結構...', '寫每一張卡片...', '畫成圖卡中...']);
+  setLoading('genBtn','genSpinner','genBtnText', true, '✨ 用我的風格生成', ['正在套用你的語氣...','組織輪播結構...','寫每一張卡片...','排版成圖卡...']);
 
-  const plat = PLATFORMS[platformIdx];
-  const goal = GOALS[goalIdx];
-  const styleBlock = fingerprint
-    ? `這位創作者的個人語氣檔案如下，請嚴格模仿這個風格寫作：\n${fingerprint}\n`
-    : `（這位創作者還沒建立語氣檔案，請用自然、口語、有溫度的繁體中文寫作。）\n`;
+  var plat = PLATFORMS[platformIdx];
+  var goal = GOALS[goalIdx];
+  var styleBlock = fingerprint
+    ? '這位創作者的個人語氣檔案如下，請嚴格模仿這個風格寫作：\n' + fingerprint + '\n'
+    : '（這位創作者還沒建立語氣檔案，請用自然、口語、有溫度的繁體中文寫作。）\n';
 
-  const prompt = `你是一個專業的社群內容寫手，要替一位創作者做一篇「像他本人寫的」IG 輪播貼文。
-
-${styleBlock}
-發佈平台：${plat.label}
-貼文主題：${topic}
-貼文目的：${goal.label}
-
-請產出一篇 5 張卡片的輪播貼文，並嚴格用以下 JSON 格式回覆（只回 JSON，不要任何前言、說明或 markdown 圍欄）：
-
-{
-  "cover": "封面大標題，要當鉤子抓住注意力，最多 16 個字",
-  "slides": [
-    { "title": "第一個重點的標題，最多 12 字", "body": "這個重點的說明，2 到 3 句話，最多 60 字" },
-    { "title": "第二個重點的標題", "body": "說明" },
-    { "title": "第三個重點的標題", "body": "說明" }
-  ],
-  "ending": "結尾這一張的一句話，做總結或行動呼籲，最多 20 字",
-  "caption": "發文時要貼在貼文框的完整內文，用上面的語氣，含適當換行與 emoji，結尾自然帶出互動",
-  "hashtags": "5 到 8 個相關的繁體中文或英文 hashtag，用空格分開，每個都要有 # 號"
-}
-
-要求：完全用上面的語氣檔案來寫，繁體中文，不要用破折號。slides 一定要剛好 3 個。`;
+  var prompt = '你是一個專業的社群媒體內容策略師。請幫一位創作者生成一組 ' + plat.label + ' 輪播貼文內容。\n\n' +
+    styleBlock + '\n主題：' + topic + '\n總共頁數：' + slideCount + ' 頁\n貼文目的：' + goal.label + '\n\n' +
+    '規則：\n' +
+    '1. 第一頁是「封面頁」，要有超吸睛的標題（title）和一個短 hook 標語（hook），讓人想滑下去\n' +
+    '2. 中間頁是「內容頁」，每頁一個重點標題（title）和 1~3 句補充說明（body）\n' +
+    '3. 最後一頁是「CTA 頁」，有總結標題（title）、一句收尾說明（body）、和一個行動呼籲按鈕文字（cta）\n' +
+    '4. 每頁 title 控制在 15 字內，body 控制在 60 字內\n' +
+    '5. 完全用上面的語氣檔案來寫，繁體中文，不要用破折號\n\n' +
+    '請嚴格按以下 JSON 格式回覆，不要加任何前綴後綴或 markdown：\n' +
+    '[\n  {"title":"封面標題","hook":"hook標語","body":""},\n  {"title":"內容頁標題","body":"補充說明"},\n  {"title":"CTA標題","body":"收尾說明","cta":"按鈕文字"}\n]';
 
   try {
-    const raw = await callClaude(prompt, 1600);
-    const data = parseCardJSON(raw);
-    if (!data) throw new Error('AI 回傳的格式怪怪的，再按一次生成試試。');
+    var raw = await callClaude(prompt, 1600);
+    var parsed = parseSlides(raw);
+    if (!parsed) throw new Error('AI 回傳格式怪怪的，再按一次生成試試。');
+    slides = parsed; currentSlide = 0;
 
-    // 顯示可複製的貼文內文
-    const caption = (data.caption || '') + (data.hashtags ? '\n\n' + data.hashtags : '');
-    document.getElementById('genText').textContent = caption.trim();
+    // 可複製內文
+    document.getElementById('genText').textContent = buildCaption(parsed);
 
-    // 畫卡片
-    await renderCards(data);
-
+    renderAll();
     document.getElementById('genOutput').style.display = 'block';
     if (!isPro()) bumpUsage();
-  } catch(e) {
-    showStatus('genStatus', '生成失敗：' + e.message, 'err');
-  } finally {
-    setLoading('genBtn','genSpinner','genBtnText', false, '✨ 用我的風格生成', []);
-  }
+  } catch(e) { showStatus('genStatus', '生成失敗：' + e.message, 'err'); }
+  finally { setLoading('genBtn','genSpinner','genBtnText', false, '✨ 用我的風格生成', []); }
 }
 
-// 容錯解析：去掉可能的 ```json 圍欄、抓出第一個 { 到最後一個 }
-function parseCardJSON(raw) {
+function parseSlides(raw) {
   try {
-    let s = raw.trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
-    const a = s.indexOf('{'), b = s.lastIndexOf('}');
+    var s = raw.trim().replace(/```json/gi,'').replace(/```/g,'').trim();
+    var a = s.indexOf('['), b = s.lastIndexOf(']');
     if (a >= 0 && b > a) s = s.slice(a, b+1);
-    const d = JSON.parse(s);
-    if (!d.slides || !Array.isArray(d.slides)) return null;
-    return d;
-  } catch { return null; }
+    var arr = JSON.parse(s);
+    if (!Array.isArray(arr) || arr.length < 2) return null;
+    return arr;
+  } catch(e) { return null; }
 }
 
-/* ═══════════ CANVAS 卡片繪製 ═══════════ */
-const BRAND = 'PLUS ONE';
-
-async function renderCards(data) {
-  if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch {} }
-
-  const total = 2 + (data.slides ? data.slides.length : 0); // 封面 + slides + 結尾
-  const cards = [];
-  let page = 1;
-
-  cards.push(drawCard('cover', { text: data.cover || '' }, page++, total));
-  (data.slides || []).forEach((s) => {
-    cards.push(drawCard('content', { title: s.title || '', body: s.body || '' }, page++, total));
+function buildCaption(arr) {
+  var parts = [];
+  arr.forEach(function(s, i){
+    if (i===0 && s.hook) parts.push(s.title || '');
+    else if (s.title) parts.push(s.title);
+    if (s.body) parts.push(s.body);
   });
-  cards.push(drawCard('ending', { text: data.ending || '' }, page++, total));
+  return parts.join('\n\n');
+}
 
-  generatedCards = cards;
+/* ═══════════ CARD RENDER ═══════════ */
+function getBrandName() { return 'PLUS ONE'; }
 
-  const scroll = document.getElementById('cardsScroll');
-  scroll.innerHTML = '';
-  cards.forEach((url, i) => {
-    const div = document.createElement('div');
-    div.className = 'card-thumb';
-    div.onclick = () => downloadCard(i);
-    div.innerHTML =
-      '<div class="pg-badge">' + (i+1) + '</div>' +
-      '<img src="' + url + '" alt="card ' + (i+1) + '">' +
-      '<div class="dl-badge">⬇ 存圖</div>';
-    scroll.appendChild(div);
+function renderAll() { renderSlide(); renderDots(); renderGrid(); updateNavBtns(); }
+
+function toggleGradient() {
+  useGradient = !useGradient;
+  document.getElementById('gradient-toggle-btn').textContent = useGradient ? '🎨 切換：漸層背景' : '⬜ 切換：純色背景';
+  renderAll();
+}
+
+function slideBg(t, isFirst, isLast) {
+  if (!useGradient) return t.bg;
+  if (isFirst) return 'linear-gradient(145deg, ' + t.bg + ' 10%, ' + t.accent + '50 100%)';
+  if (isLast) return 'linear-gradient(225deg, ' + t.bg + ' 10%, ' + t.accent + '45 100%)';
+  return 'linear-gradient(145deg, ' + t.bg + ' 35%, ' + t.accent + '35 100%)';
+}
+
+function renderSlide() {
+  var s = slides[currentSlide], t = THEMES[themeIdx];
+  var isFirst = currentSlide === 0, isLast = currentSlide === slides.length - 1;
+  var brand = getBrandName();
+  var titleSize = isFirst ? '26px' : '22px';
+  var decoOp = useGradient ? '55' : '22', decoOp2 = useGradient ? '40' : '11';
+  document.getElementById('slide-display').innerHTML =
+    '<div class="slide-card" style="background:' + slideBg(t,isFirst,isLast) + '">' +
+      '<div class="slide-deco-tr" style="background:linear-gradient(135deg,' + t.accent + decoOp + ' 0%,transparent 55%)"></div>' +
+      '<div class="slide-deco-bl" style="background:radial-gradient(circle at bottom left,' + t.accent + decoOp2 + ' 0%,transparent 65%)"></div>' +
+      '<div class="slide-brand" style="color:' + t.accent + '">' + brand + '</div>' +
+      '<div class="slide-num" style="color:' + t.sub + '">' + pad(currentSlide+1) + '/' + pad(slides.length) + '</div>' +
+      '<div class="slide-content">' +
+        (isFirst && s.hook ? '<div class="slide-hook" style="color:' + t.accent + '">' + esc(s.hook) + '</div>' : '') +
+        '<div class="slide-title" style="font-size:' + titleSize + ';color:' + t.text + '">' + esc(s.title||'') + '</div>' +
+        (s.body ? '<div class="slide-body" style="color:' + t.sub + '">' + esc(s.body) + '</div>' : '') +
+        (isLast && s.cta ? '<div class="slide-cta" style="color:' + t.accent + ';border-color:' + t.accent + '">' + esc(s.cta) + '</div>' : '') +
+      '</div>' +
+      '<div class="slide-bar" style="background:' + t.accent + '"></div>' +
+    '</div>';
+}
+
+function renderDots() {
+  var row = document.getElementById('dots-row'); row.innerHTML = '';
+  slides.forEach(function(_, i){
+    var d = document.createElement('button');
+    d.className = 'dot' + (i===currentSlide?' active':'');
+    d.onclick = function(){ currentSlide = i; renderAll(); };
+    row.appendChild(d);
   });
 }
 
-function drawCard(type, d, page, total) {
-  const cv = document.getElementById('cardCanvas');
-  const ctx = cv.getContext('2d');
-  const W = 1080, H = 1080;
-
-  // 背景
-  ctx.fillStyle = '#09090B';
-  ctx.fillRect(0, 0, W, H);
-  // 橘色光暈（右上）
-  const g = ctx.createRadialGradient(W*0.85, H*0.15, 50, W*0.85, H*0.15, 700);
-  g.addColorStop(0, 'rgba(255,107,53,0.22)');
-  g.addColorStop(1, 'rgba(255,107,53,0)');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.textBaseline = 'top';
-  const pad = 96;
-
-  if (type === 'cover') {
-    // 頂部品牌
-    ctx.fillStyle = '#FF6B35';
-    ctx.font = '700 34px "Noto Sans TC", sans-serif';
-    ctx.fillText(BRAND, pad, pad);
-    ctx.fillStyle = '#555';
-    ctx.font = '500 26px "JetBrains Mono", monospace';
-    ctx.fillText('SWIPE  →', W - pad - 150, pad + 4);
-    // 大標題（垂直置中）
-    ctx.fillStyle = '#FAFAFA';
-    const lines = wrapText(ctx, d.text, '900 92px "Noto Sans TC", sans-serif', W - pad*2);
-    const lh = 118;
-    let y = H/2 - (lines.length*lh)/2;
-    ctx.font = '900 92px "Noto Sans TC", sans-serif';
-    lines.forEach(ln => { ctx.fillText(ln, pad, y); y += lh; });
-    // 橘色底線
-    ctx.fillStyle = '#FF6B35';
-    ctx.fillRect(pad, y + 24, 120, 10);
-  }
-
-  else if (type === 'content') {
-    // 大頁碼
-    ctx.fillStyle = 'rgba(255,107,53,0.9)';
-    ctx.font = '900 150px "JetBrains Mono", monospace';
-    ctx.fillText(String(page-1).padStart(2,'0'), pad, pad - 10);
-    // 標題
-    ctx.fillStyle = '#FAFAFA';
-    let y = pad + 200;
-    const tLines = wrapText(ctx, d.title, '900 64px "Noto Sans TC", sans-serif', W - pad*2);
-    ctx.font = '900 64px "Noto Sans TC", sans-serif';
-    tLines.forEach(ln => { ctx.fillText(ln, pad, y); y += 82; });
-    // 分隔線
-    y += 20;
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.fillRect(pad, y, W - pad*2, 3);
-    y += 50;
-    // 內文
-    ctx.fillStyle = '#C8C8C8';
-    const bLines = wrapText(ctx, d.body, '400 46px "Noto Sans TC", sans-serif', W - pad*2);
-    ctx.font = '400 46px "Noto Sans TC", sans-serif';
-    bLines.forEach(ln => { ctx.fillText(ln, pad, y); y += 70; });
-  }
-
-  else { // ending
-    ctx.fillStyle = '#FF6B35';
-    ctx.font = '900 60px "Noto Sans TC", sans-serif';
-    ctx.fillText('✦', pad, H/2 - 220);
-    ctx.fillStyle = '#FAFAFA';
-    const lines = wrapText(ctx, d.text, '900 76px "Noto Sans TC", sans-serif', W - pad*2);
-    const lh = 100;
-    let y = H/2 - (lines.length*lh)/2 + 40;
-    ctx.font = '900 76px "Noto Sans TC", sans-serif';
-    lines.forEach(ln => { ctx.fillText(ln, pad, y); y += lh; });
-    // slogan
-    ctx.fillStyle = '#666';
-    ctx.font = '500 34px "Noto Sans TC", sans-serif';
-    ctx.fillText('我不多，只多一點，但這一點，就是無限', pad, y + 50);
-  }
-
-  // 底部浮水印（每張都有）
-  ctx.fillStyle = '#444';
-  ctx.font = '700 30px "JetBrains Mono", monospace';
-  ctx.fillText(BRAND, pad, H - pad - 10);
-  ctx.fillStyle = '#444';
-  ctx.font = '500 28px "JetBrains Mono", monospace';
-  ctx.textAlign = 'right';
-  ctx.fillText(page + ' / ' + total, W - pad, H - pad - 8);
-  ctx.textAlign = 'left';
-
-  return cv.toDataURL('image/png');
+function renderGrid() {
+  var t = THEMES[themeIdx], brand = getBrandName();
+  var grid = document.getElementById('slides-grid'); grid.innerHTML = '';
+  slides.forEach(function(s, i){
+    var isFirst = i===0, isLast = i===slides.length-1;
+    var cell = document.createElement('div');
+    cell.className = 'grid-item';
+    cell.style.borderColor = i===currentSlide ? t.accent : 'transparent';
+    cell.innerHTML =
+      '<div class="slide-card" style="background:' + slideBg(t,isFirst,isLast) + '">' +
+        '<div class="slide-deco-tr" style="background:linear-gradient(135deg,' + t.accent + (useGradient?'55':'22') + ' 0%,transparent 55%)"></div>' +
+        '<div class="slide-content">' +
+          '<div class="slide-title" style="font-size:9px;color:' + t.text + ';margin-bottom:4px">' + esc(s.title||'') + '</div>' +
+          (s.body ? '<div class="slide-body" style="color:' + t.sub + ';font-size:7px;line-height:1.4">' + esc(s.body) + '</div>' : '') +
+        '</div>' +
+        '<div class="slide-bar" style="background:' + t.accent + '"></div>' +
+      '</div>';
+    cell.onclick = function(){ currentSlide = i; renderAll(); };
+    grid.appendChild(cell);
+  });
 }
 
-// 中文自動換行（逐字測量）
-function wrapText(ctx, text, font, maxW) {
-  ctx.font = font;
-  const out = [];
-  const paras = String(text || '').split('\n');
-  paras.forEach(para => {
-    let line = '';
-    for (const ch of para) {
-      const test = line + ch;
-      if (ctx.measureText(test).width > maxW && line) {
-        out.push(line);
-        line = ch;
-      } else {
-        line = test;
-      }
+function updateNavBtns() {
+  document.getElementById('prev-btn').disabled = currentSlide===0;
+  document.getElementById('next-btn').disabled = currentSlide===slides.length-1;
+}
+function prevSlide() { if (currentSlide>0) { currentSlide--; renderAll(); } }
+function nextSlide() { if (currentSlide<slides.length-1) { currentSlide++; renderAll(); } }
+
+/* ═══════════ DOWNLOAD (html2canvas) ═══════════ */
+async function renderCardToCanvas(idx) {
+  var t = THEMES[themeIdx], s = slides[idx];
+  var isFirst = idx===0, isLast = idx===slides.length-1, brand = getBrandName();
+  var W = 1080, H = 1350;
+  var el = document.createElement('div');
+  el.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:' + W + 'px;height:' + H + 'px;overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:108px 86px;box-sizing:border-box;font-family:\'Noto Sans TC\',sans-serif;';
+  el.style.background = slideBg(t, isFirst, isLast);
+  var decoOp = useGradient ? '55' : '22', decoOp2 = useGradient ? '40' : '11';
+  var titlePx = isFirst ? '72px' : '60px';
+  el.innerHTML =
+    '<div style="position:absolute;top:0;right:0;width:220px;height:220px;background:linear-gradient(135deg,' + t.accent + decoOp + ' 0%,transparent 55%)"></div>' +
+    '<div style="position:absolute;bottom:0;left:0;width:320px;height:320px;background:radial-gradient(circle at bottom left,' + t.accent + decoOp2 + ' 0%,transparent 65%)"></div>' +
+    '<div style="position:absolute;top:40px;left:50px;font-size:26px;font-family:\'JetBrains Mono\',monospace;color:' + t.accent + ';opacity:0.6;letter-spacing:0.15em">' + brand + '</div>' +
+    '<div style="position:absolute;top:40px;right:50px;font-size:28px;font-family:\'JetBrains Mono\',monospace;color:' + t.sub + ';opacity:0.7">' + pad(idx+1) + '/' + pad(slides.length) + '</div>' +
+    '<div style="text-align:center;max-width:85%;z-index:1">' +
+      (isFirst && s.hook ? '<div style="font-size:26px;font-family:\'JetBrains Mono\',monospace;color:' + t.accent + ';letter-spacing:0.2em;margin-bottom:40px">' + esc(s.hook) + '</div>' : '') +
+      '<div style="font-size:' + titlePx + ';font-weight:900;color:' + t.text + ';line-height:1.3;margin-bottom:36px;white-space:pre-line">' + esc(s.title||'') + '</div>' +
+      (s.body ? '<div style="font-size:36px;color:' + t.sub + ';line-height:1.7;white-space:pre-line">' + esc(s.body) + '</div>' : '') +
+      (isLast && s.cta ? '<div style="display:inline-block;margin-top:60px;padding:24px 64px;border:4px solid ' + t.accent + ';border-radius:999px;font-size:32px;font-weight:700;color:' + t.accent + '">' + esc(s.cta) + '</div>' : '') +
+    '</div>' +
+    '<div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100px;height:8px;background:' + t.accent + ';border-radius:8px 8px 0 0;opacity:0.6"></div>';
+  document.body.appendChild(el);
+  var canvas = await html2canvas(el, { scale:1, useCORS:true, allowTaint:true, backgroundColor:null, width:W, height:H, logging:false });
+  document.body.removeChild(el);
+  return canvas.toDataURL('image/png');
+}
+
+async function downloadSlide() {
+  var btn = document.getElementById('dl-btn');
+  btn.disabled = true; var old = btn.textContent; btn.textContent = '⏳ 產生中...';
+  try {
+    var url = await renderCardToCanvas(currentSlide);
+    triggerDownload(url, 'plusone-card-' + pad(currentSlide+1) + '.png');
+  } catch(e) { showStatus('genStatus', '下載失敗：' + e.message + '（試試改用 Safari 開）', 'err'); }
+  btn.disabled = false; btn.textContent = old;
+}
+
+async function downloadAll() {
+  var btn = document.getElementById('dl-all-btn');
+  btn.disabled = true; var old = btn.textContent;
+  try {
+    for (var i=0;i<slides.length;i++) {
+      btn.textContent = '⏳ ' + (i+1) + '/' + slides.length;
+      var url = await renderCardToCanvas(i);
+      triggerDownload(url, 'plusone-card-' + pad(i+1) + '.png');
+      await new Promise(function(r){ setTimeout(r, 500); });
     }
-    out.push(line);
-  });
-  return out;
+  } catch(e) { showStatus('genStatus', '下載失敗：' + e.message + '（試試改用 Safari 開）', 'err'); }
+  btn.disabled = false; btn.textContent = old;
 }
 
-/* ═══════════ 下載卡片 ═══════════ */
-function downloadCard(i) {
-  const url = generatedCards[i];
-  if (!url) return;
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'plusone-card-' + (i+1) + '.png';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-function downloadAllCards() {
-  if (!generatedCards.length) return;
-  // 手機一次下載多張容易被擋，逐張間隔觸發
-  generatedCards.forEach((_, i) => {
-    setTimeout(() => downloadCard(i), i * 600);
-  });
+function triggerDownload(url, name) {
+  var a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
 }
 
-/* ═══════════ FEATURE 3: VIRAL ANALYSIS ═══════════ */
+/* ═══════════ FEATURE 3: VIRAL ═══════════ */
 async function analyzeViral() {
-  const input = document.getElementById('viralInput').value.trim();
+  var input = document.getElementById('viralInput').value.trim();
   hideStatus('viralStatus');
   document.getElementById('viralOutput').style.display = 'none';
   if (!getKey()) { showStatus('viralStatus', '請先輸入並記住你的 API Key', 'err'); return; }
   if (input.length < 20) { showStatus('viralStatus', '請貼上一篇完整的貼文', 'err'); return; }
-
-  setLoading('viralBtn','viralSpinner','viralBtnText', true, '🔥 拆解爆款結構',
-    ['正在閱讀這篇貼文...', '分析它的鉤子...', '抓出爆款結構...', '整理成可複製公式...']);
-
-  const prompt = `你是一個社群爆款內容分析專家。以下是一篇社群貼文。
-
-請拆解它為什麼能吸引人、能爆，並把可以複製的結構抓出來。用繁體中文，分成這幾段：
-
-【開頭鉤子】這篇怎麼在前一兩句抓住注意力？
-【內容結構】整篇的鋪陳邏輯是什麼？怎麼維持人往下看？
-【情緒觸發點】它戳中讀者什麼情緒或需求？
-【可複製公式】把這篇的結構抽象成一個你也能套用的範本（用「先...再...最後...」的方式描述）
-【給你的提醒】如果要模仿，有什麼地方要注意不要照抄？
-
-請精煉好讀，不要用破折號，不要加開場白。以下是貼文：
-${input}`;
-
+  setLoading('viralBtn','viralSpinner','viralBtnText', true, '🔥 拆解爆款結構', ['正在閱讀這篇貼文...','分析它的鉤子...','抓出爆款結構...','整理成可複製公式...']);
+  var prompt = '你是一個社群爆款內容分析專家。以下是一篇社群貼文。\n\n請拆解它為什麼能爆，用繁體中文分成這幾段：\n【開頭鉤子】前一兩句怎麼抓住注意力？\n【內容結構】整篇鋪陳邏輯是什麼？\n【情緒觸發點】戳中讀者什麼情緒或需求？\n【可複製公式】抽象成你也能套用的範本（用「先...再...最後...」描述）\n【給你的提醒】模仿時要注意什麼？\n\n請精煉好讀，不要用破折號，不要開場白。以下是貼文：\n' + input;
   try {
-    const result = await callClaude(prompt, 1400);
+    var result = await callClaude(prompt, 1400);
     document.getElementById('viralText').textContent = result;
     document.getElementById('viralOutput').style.display = 'block';
-  } catch(e) {
-    showStatus('viralStatus', '拆解失敗：' + e.message, 'err');
-  } finally {
-    setLoading('viralBtn','viralSpinner','viralBtnText', false, '🔥 拆解爆款結構', []);
-  }
+  } catch(e) { showStatus('viralStatus', '拆解失敗：' + e.message, 'err'); }
+  finally { setLoading('viralBtn','viralSpinner','viralBtnText', false, '🔥 拆解爆款結構', []); }
 }
 
-/* ═══════════ COPY ═══════════ */
+/* ═══════════ COPY / UTIL ═══════════ */
 function copyOut(textId, btnId) {
-  const txt = document.getElementById(textId).textContent;
-  navigator.clipboard.writeText(txt).then(() => {
-    const btn = document.getElementById(btnId);
-    btn.textContent = '✓ 已複製';
-    btn.classList.add('done');
-    setTimeout(() => { btn.textContent = '複製'; btn.classList.remove('done'); }, 1600);
+  var txt = document.getElementById(textId).textContent;
+  navigator.clipboard.writeText(txt).then(function(){
+    var btn = document.getElementById(btnId);
+    btn.textContent = '✓ 已複製'; btn.classList.add('done');
+    setTimeout(function(){ btn.textContent = '複製'; btn.classList.remove('done'); }, 1600);
   });
 }
+function pad(n) { return String(n).padStart(2,'0'); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeHtml(s) { return esc(s); }
 
-/* ═══════════ UTIL ═══════════ */
-function escapeHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-/* ═══════════ START ═══════════ */
 init();
 </script>
 </body>
