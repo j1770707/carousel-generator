@@ -132,7 +132,7 @@
   /* Status box */
   .status {
     display: none; padding: 12px 14px; border-radius: 10px; font-size: 13px;
-    line-height: 1.6; margin-top: 14px;
+    line-height: 1.7; margin-top: 14px; white-space: pre-wrap;
   }
   .status.err { display: block; background: rgba(229,69,96,0.1); border: 1px solid rgba(229,69,96,0.3); color: #FF8DA1; }
   .status.ok { display: block; background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.25); color: var(--ok); }
@@ -516,10 +516,16 @@ function clearFingerprint() {
 async function callClaude(prompt, maxTokens) {
   const apiKey = getKey();
   if (!apiKey) throw new Error('請先輸入並記住你的 API Key');
+  if (!apiKey.startsWith('sk-ant-')) {
+    throw new Error('API Key 格式怪怪的，正常應該是 sk-ant-api03- 開頭。請重新複製貼上。');
+  }
+
   let lastErr = null;
   for (let attempt = 0; attempt < 2; attempt++) {
+    // 第一階段：把請求送出去（fetch 本身失敗 = 網路 / 瀏覽器層問題）
+    let res;
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -533,16 +539,50 @@ async function callClaude(prompt, maxTokens) {
           messages: [{ role: 'user', content: prompt }],
         }),
       });
-      if (!res.ok) {
-        const e = await res.text().catch(()=>'');
-        throw new Error(`API ${res.status}: ${e.slice(0,140)}`);
-      }
-      const data = await res.json();
-      return (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
-    } catch(e) {
-      lastErr = e;
-      if (attempt === 0) await new Promise(r=>setTimeout(r,1200));
+    } catch (netErr) {
+      // 這裡會抓到 iOS Safari 的 "Type error" / "Load failed"
+      lastErr = new Error(
+        '連不到 API（請求沒送出去）。最可能原因：\n' +
+        '① 你是用 App 內建瀏覽器開的（LINE/IG/FB），請改用 Safari 開\n' +
+        '② 網路不穩，換 Wi-Fi 或等訊號好一點再試\n' +
+        '③ 開了內容阻擋器 / VPN，先關掉試試\n' +
+        '（技術細節：' + (netErr.name || 'Error') + ' - ' + (netErr.message || '無') + '）'
+      );
+      if (attempt === 0) { await new Promise(r=>setTimeout(r,1500)); continue; }
+      throw lastErr;
     }
+
+    // 第二階段：API 有回應，但回了錯誤碼
+    if (!res.ok) {
+      let detail = '';
+      try {
+        const j = await res.json();
+        detail = (j.error && j.error.message) ? j.error.message : JSON.stringify(j);
+      } catch { detail = await res.text().catch(()=>''); }
+
+      if (res.status === 401) {
+        throw new Error('API Key 無效或被拒絕（401）。請到 console.anthropic.com 重新產生一把 Key 再貼上。');
+      }
+      if (res.status === 429) {
+        throw new Error('額度不足或太頻繁（429）。檢查 console.anthropic.com 的餘額，或等幾秒再試。');
+      }
+      if (res.status === 400 && /model/i.test(detail)) {
+        throw new Error('模型名稱可能過期（400）。詳情：' + detail.slice(0,160));
+      }
+      // 5xx 等暫時性錯誤才重試
+      if (res.status >= 500 && attempt === 0) {
+        lastErr = new Error('API 暫時出錯（' + res.status + '），重試中...');
+        await new Promise(r=>setTimeout(r,1500));
+        continue;
+      }
+      throw new Error('API 回傳錯誤（' + res.status + '）：' + detail.slice(0,160));
+    }
+
+    // 第三階段：成功，解析內容
+    const data = await res.json();
+    const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    if (!text) throw new Error('API 回傳了空內容，請再試一次。');
+    return text;
   }
   throw lastErr || new Error('未知錯誤');
 }
