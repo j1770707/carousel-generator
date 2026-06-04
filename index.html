@@ -99,6 +99,16 @@
   .num-btn { width: 44px; height: 44px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface); color: var(--sub); font-size: 15px; font-weight: 700; font-family: 'JetBrains Mono', monospace; transition: all 0.2s; }
   .num-btn.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
 
+  /* 科學根據模式開關 */
+  .research-box { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+  .research-box .r-left { display: flex; flex-direction: column; gap: 3px; }
+  .research-box .r-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .research-box .r-sub { font-size: 11px; color: var(--dim); }
+  .switch { width: 48px; height: 28px; border-radius: 999px; border: none; background: #333; position: relative; flex-shrink: 0; transition: background 0.2s; }
+  .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
+  .switch.on { background: var(--accent); }
+  .switch.on::after { transform: translateX(20px); }
+
   .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: linear-gradient(135deg, var(--accent), #C73E00); color: #fff; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s, opacity 0.2s; margin-top: 4px; }
   .btn:active { transform: scale(0.98); }
   .btn:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -143,6 +153,7 @@
   .slide-hook { font-size:11px; font-family:'JetBrains Mono',monospace; letter-spacing:0.2em; text-transform:uppercase; margin-bottom:14px; }
   .slide-title { font-weight:900; line-height:1.35; margin-bottom:14px; letter-spacing:-0.01em; white-space:pre-line; }
   .slide-body { font-size:14px; line-height:1.7; white-space:pre-line; }
+  .slide-source { font-size:9px; font-family:'JetBrains Mono',monospace; margin-top:12px; opacity:0.85; letter-spacing:0.03em; }
   .slide-cta { display:inline-block; margin-top:20px; padding:10px 24px; border-radius:999px; border-width:2px; border-style:solid; font-size:13px; font-weight:700; letter-spacing:0.05em; }
   .slide-bar { position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:40px; height:3px; border-radius:3px 3px 0 0; opacity:0.6; }
 
@@ -256,6 +267,16 @@
       <div class="field">
         <label class="label">頁數</label>
         <div class="num-row" id="num-row"></div>
+      </div>
+
+      <div class="field">
+        <div class="research-box">
+          <div class="r-left">
+            <span class="r-title">🔬 科學根據模式</span>
+            <span class="r-sub">開啟後會上網查證，圖卡附真實來源（較慢、較耗額度）</span>
+          </div>
+          <button class="switch on" id="research-toggle" onclick="toggleResearch()"></button>
+        </div>
       </div>
 
       <button class="btn" id="genBtn" onclick="generatePost()">
@@ -498,10 +519,15 @@ function renderFingerprint() {
 function clearFingerprint() { fingerprint = ''; localStorage.removeItem(LS.fp); renderFingerprint(); }
 
 /* ═══════════ API CALL ═══════════ */
-async function callClaude(prompt, maxTokens) {
+async function callClaude(prompt, maxTokens, useSearch) {
   var apiKey = getKey();
   if (!apiKey) throw new Error('請先輸入並記住你的 API Key');
   if (apiKey.indexOf('sk-ant-') !== 0) throw new Error('API Key 格式怪怪的，正常應該是 sk-ant-api03- 開頭。請重新複製貼上。');
+
+  var payload = { model: MODEL, max_tokens: maxTokens || 1200, messages: [{ role:'user', content: prompt }] };
+  if (useSearch) {
+    payload.tools = [{ type: 'web_search_20250305', name: 'web_search', max_uses: 4 }];
+  }
 
   var lastErr = null;
   for (var attempt = 0; attempt < 2; attempt++) {
@@ -515,7 +541,7 @@ async function callClaude(prompt, maxTokens) {
           'anthropic-version': '2023-06-01',
           'anthropic-dangerous-direct-browser-access': 'true',
         },
-        body: JSON.stringify({ model: MODEL, max_tokens: maxTokens || 1200, messages: [{ role:'user', content: prompt }] }),
+        body: JSON.stringify(payload),
       });
     } catch (netErr) {
       lastErr = new Error(
@@ -586,7 +612,11 @@ async function generatePost() {
   if (!topic) { showStatus('genStatus', '請先輸入你想講什麼', 'err'); return; }
   if (!canGenerate()) { openUpgrade(); return; }
 
-  setLoading('genBtn','genSpinner','genBtnText', true, '✨ 用我的風格生成', ['正在套用你的語氣...','組織輪播結構...','寫每一張卡片...','排版成圖卡...']);
+  var useSearch = document.getElementById('research-toggle').classList.contains('on');
+  var loadMsgs = useSearch
+    ? ['正在上網查證資料...','找真實的研究來源...','寫每一張卡片...','排版成圖卡...']
+    : ['正在套用你的語氣...','組織輪播結構...','寫每一張卡片...','排版成圖卡...'];
+  setLoading('genBtn','genSpinner','genBtnText', true, '✨ 用我的風格生成', loadMsgs);
 
   var plat = PLATFORMS[platformIdx];
   var goal = GOALS[goalIdx];
@@ -594,25 +624,35 @@ async function generatePost() {
     ? '這位創作者的個人語氣檔案如下，請嚴格模仿這個風格寫作：\n' + fingerprint + '\n'
     : '（這位創作者還沒建立語氣檔案，請用自然、口語、有溫度的繁體中文寫作。）\n';
 
-  var prompt = '你是一個專業的社群媒體內容策略師。請幫一位創作者生成一組 ' + plat.label + ' 輪播貼文內容。\n\n' +
-    styleBlock + '\n主題：' + topic + '\n總共頁數：' + slideCount + ' 頁\n貼文目的：' + goal.label + '\n\n' +
-    '規則：\n' +
-    '1. 第一頁是「封面頁」，要有超吸睛的標題（title）和一個短 hook 標語（hook），讓人想滑下去\n' +
-    '2. 中間頁是「內容頁」，每頁一個重點標題（title）和 1~3 句補充說明（body）\n' +
-    '3. 最後一頁是「CTA 頁」，有總結標題（title）、一句收尾說明（body）、和一個行動呼籲按鈕文字（cta）\n' +
-    '4. 每頁 title 控制在 15 字內，body 控制在 60 字內\n' +
-    '5. 完全用上面的語氣檔案來寫，繁體中文，不要用破折號\n\n' +
-    '請嚴格按以下 JSON 格式回覆，不要加任何前綴後綴或 markdown：\n' +
-    '[\n  {"title":"封面標題","hook":"hook標語","body":""},\n  {"title":"內容頁標題","body":"補充說明"},\n  {"title":"CTA標題","body":"收尾說明","cta":"按鈕文字"}\n]';
+  var voiceRule = '【用字規則｜務必遵守】\n這位創作者有一個口語玩法：把「表示程度誇飾的死」替換成「屎」，例如「氣死了→氣屎了」「笑死→笑屎」「累死了→累屎了」「熱死→熱屎」「帥死→帥屎」。\n但這個替換「只能」用在「形容詞或動詞＋死（了）」這種誇飾語境。\n絕對禁止把當名詞或實義的「死」換成「屎」，例如「死人」不可寫成「屎人」，「死亡、死掉、死板、死路」一律保留原字，不准替換。\n如果不確定某個「死」是不是誇飾用法，就保留原字，不要硬換。沒有誇飾語境時不要刻意塞「屎」字。\n\n';
+
+  var researchRule = useSearch
+    ? '【科學根據模式｜重要】\n你必須先用 web_search 查證主題相關的真實研究、數據或權威來源，然後只引用「你真的查到、確實存在」的來源。每張內容頁的 source 欄位要填真實的來源（例如真實的研究機構、期刊、學者、官方組織）。絕對禁止編造不存在的研究、假的數據或假的論文。如果查不到可靠來源，source 就填「科學共識／一般常識」，不要硬掰。\n\n'
+    : '【一般模式】\n圖卡內容要言之有物。如果引用科學說法，只能用你有把握、廣為人知的科學常識，source 欄位填來源（例如領域共識或知名機構）。不確定的就不要掰具體數據或論文名。\n\n';
+
+  var prompt = '你是一個專業的社群媒體內容策略師。請幫一位創作者做一組 ' + plat.label + ' 知識型輪播貼文。\n\n' +
+    styleBlock + '\n' + voiceRule + researchRule +
+    '主題：' + topic + '\n總共圖卡頁數：' + slideCount + ' 頁\n貼文目的：' + goal.label + '\n\n' +
+    '請輸出兩個東西：\n' +
+    'A. caption：發文框要貼的「貼文內文」，100 到 150 字。這段是用來吸引人點開圖看的鉤子和情緒，營造期待感，不要把圖卡裡的每個重點都寫出來，留懸念讓人去滑圖卡。用上面的語氣寫，結尾自然帶出互動。\n' +
+    'B. slides：圖卡內容，規則如下：\n' +
+    '  1. 第一頁封面頁：超吸睛 title + 短 hook 標語\n' +
+    '  2. 中間頁內容頁：每頁一個重點 title、1~3 句 body、以及 source（這個論點的科學來源）\n' +
+    '  3. 最後一頁 CTA 頁：總結 title、收尾 body、行動呼籲 cta\n' +
+    '  4. title 15 字內，body 60 字內，內容可以有梗有態度，但論點要有依據\n' +
+    '  5. 繁體中文，不要用破折號\n\n' +
+    '嚴格按以下 JSON 格式回覆，最後只輸出這個 JSON，不要加任何說明或 markdown：\n' +
+    '{\n  "caption": "100到150字的貼文內文",\n  "hashtags": "5到8個 hashtag 用空格分開，每個都有#",\n  "slides": [\n    {"title":"封面標題","hook":"hook標語","body":""},\n    {"title":"內容頁標題","body":"補充說明","source":"科學來源"},\n    {"title":"CTA標題","body":"收尾說明","cta":"按鈕文字"}\n  ]\n}';
 
   try {
-    var raw = await callClaude(prompt, 1600);
-    var parsed = parseSlides(raw);
-    if (!parsed) throw new Error('AI 回傳格式怪怪的，再按一次生成試試。');
-    slides = parsed; currentSlide = 0;
+    var maxTok = useSearch ? 3000 : 1800;
+    var raw = await callClaude(prompt, maxTok, useSearch);
+    var data = parseObj(raw);
+    if (!data || !data.slides) throw new Error('AI 回傳格式怪怪的，再按一次生成試試。');
+    slides = data.slides; currentSlide = 0;
 
-    // 可複製內文
-    document.getElementById('genText').textContent = buildCaption(parsed);
+    var cap = (data.caption || '') + (data.hashtags ? '\n\n' + data.hashtags : '');
+    document.getElementById('genText').textContent = cap.trim();
 
     renderAll();
     document.getElementById('genOutput').style.display = 'block';
@@ -621,25 +661,15 @@ async function generatePost() {
   finally { setLoading('genBtn','genSpinner','genBtnText', false, '✨ 用我的風格生成', []); }
 }
 
-function parseSlides(raw) {
+function parseObj(raw) {
   try {
     var s = raw.trim().replace(/```json/gi,'').replace(/```/g,'').trim();
-    var a = s.indexOf('['), b = s.lastIndexOf(']');
+    var a = s.indexOf('{'), b = s.lastIndexOf('}');
     if (a >= 0 && b > a) s = s.slice(a, b+1);
-    var arr = JSON.parse(s);
-    if (!Array.isArray(arr) || arr.length < 2) return null;
-    return arr;
+    var obj = JSON.parse(s);
+    if (!obj.slides || !Array.isArray(obj.slides) || obj.slides.length < 2) return null;
+    return obj;
   } catch(e) { return null; }
-}
-
-function buildCaption(arr) {
-  var parts = [];
-  arr.forEach(function(s, i){
-    if (i===0 && s.hook) parts.push(s.title || '');
-    else if (s.title) parts.push(s.title);
-    if (s.body) parts.push(s.body);
-  });
-  return parts.join('\n\n');
 }
 
 /* ═══════════ CARD RENDER ═══════════ */
@@ -651,6 +681,10 @@ function toggleGradient() {
   useGradient = !useGradient;
   document.getElementById('gradient-toggle-btn').textContent = useGradient ? '🎨 切換：漸層背景' : '⬜ 切換：純色背景';
   renderAll();
+}
+
+function toggleResearch() {
+  document.getElementById('research-toggle').classList.toggle('on');
 }
 
 function slideBg(t, isFirst, isLast) {
@@ -676,6 +710,7 @@ function renderSlide() {
         (isFirst && s.hook ? '<div class="slide-hook" style="color:' + t.accent + '">' + esc(s.hook) + '</div>' : '') +
         '<div class="slide-title" style="font-size:' + titleSize + ';color:' + t.text + '">' + esc(s.title||'') + '</div>' +
         (s.body ? '<div class="slide-body" style="color:' + t.sub + '">' + esc(s.body) + '</div>' : '') +
+        (s.source && !isFirst && !isLast ? '<div class="slide-source" style="color:' + t.accent + '">來源：' + esc(s.source) + '</div>' : '') +
         (isLast && s.cta ? '<div class="slide-cta" style="color:' + t.accent + ';border-color:' + t.accent + '">' + esc(s.cta) + '</div>' : '') +
       '</div>' +
       '<div class="slide-bar" style="background:' + t.accent + '"></div>' +
@@ -740,6 +775,7 @@ async function renderCardToCanvas(idx) {
       (isFirst && s.hook ? '<div style="font-size:26px;font-family:\'JetBrains Mono\',monospace;color:' + t.accent + ';letter-spacing:0.2em;margin-bottom:40px">' + esc(s.hook) + '</div>' : '') +
       '<div style="font-size:' + titlePx + ';font-weight:900;color:' + t.text + ';line-height:1.3;margin-bottom:36px;white-space:pre-line">' + esc(s.title||'') + '</div>' +
       (s.body ? '<div style="font-size:36px;color:' + t.sub + ';line-height:1.7;white-space:pre-line">' + esc(s.body) + '</div>' : '') +
+      (s.source && !isFirst && !isLast ? '<div style="margin-top:32px;font-size:24px;color:' + t.accent + ';opacity:0.85;font-family:\'JetBrains Mono\',monospace">來源：' + esc(s.source) + '</div>' : '') +
       (isLast && s.cta ? '<div style="display:inline-block;margin-top:60px;padding:24px 64px;border:4px solid ' + t.accent + ';border-radius:999px;font-size:32px;font-weight:700;color:' + t.accent + '">' + esc(s.cta) + '</div>' : '') +
     '</div>' +
     '<div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100px;height:8px;background:' + t.accent + ';border-radius:8px 8px 0 0;opacity:0.6"></div>';
