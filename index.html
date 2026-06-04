@@ -198,6 +198,22 @@
   .m-ghost { width: 100%; padding: 11px; border-radius: 11px; border: none; background: none; color: var(--dim); font-size: 13px; font-weight: 600; }
 
   .footer { text-align: center; padding: 24px 20px; font-size: 10px; color: #333; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.05em; }
+
+  /* 歷史紀錄 */
+  .hist-item { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  .hist-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .hist-topic { font-size: 15px; font-weight: 700; line-height: 1.4; flex: 1; }
+  .hist-time { font-size: 10px; color: var(--dim); font-family: 'JetBrains Mono', monospace; white-space: nowrap; flex-shrink: 0; margin-top: 3px; }
+  .hist-cap { font-size: 12px; color: var(--sub); line-height: 1.6; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .hist-meta { font-size: 11px; color: var(--dim); font-family: 'JetBrains Mono', monospace; margin-bottom: 12px; }
+  .hist-actions { display: flex; gap: 8px; }
+  .hist-btn { flex: 1; padding: 10px; border-radius: 9px; border: none; font-size: 13px; font-weight: 700; transition: all 0.2s; }
+  .hist-btn.load { background: var(--accent-soft); border: 1px solid var(--accent); color: var(--accent); }
+  .hist-btn.del { background: var(--surface-2); border: 1px solid var(--border); color: var(--dim); flex: 0 0 auto; padding: 10px 16px; }
+  .hist-empty { text-align: center; padding: 40px 20px; }
+  .hist-empty .e-ico { font-size: 32px; margin-bottom: 10px; }
+  .hist-empty .e-t { font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+  .hist-empty .e-s { font-size: 12px; color: var(--dim); line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -218,6 +234,7 @@
     <button class="tab active" data-tab="train" onclick="switchTab('train')"><span class="ico">🎯</span><span>語氣訓練</span></button>
     <button class="tab" data-tab="gen" onclick="switchTab('gen')"><span class="ico">✨</span><span>生成貼文</span></button>
     <button class="tab" data-tab="viral" onclick="switchTab('viral')"><span class="ico">🔥</span><span>爆款拆解</span></button>
+    <button class="tab" data-tab="history" onclick="switchTab('history')"><span class="ico">📚</span><span>生成紀錄</span></button>
   </div>
 
   <div class="content">
@@ -338,6 +355,11 @@
       </div>
     </div>
 
+    <!-- TAB 4: HISTORY -->
+    <div class="panel" id="panel-history">
+      <div id="history-list"></div>
+    </div>
+
   </div>
 
   <div class="footer">PLUS ONE · 我不多，只多一點，但這一點，就是無限</div>
@@ -366,7 +388,7 @@
 /* ═══════════ CONFIG ═══════════ */
 var MODEL = 'claude-sonnet-4-6';
 var FREE_DAILY_LIMIT = 3;
-var LS = { key:'p1_apikey', fp:'p1_fingerprint', plan:'p1_plan', usage:'p1_usage' };
+var LS = { key:'p1_apikey', fp:'p1_fingerprint', plan:'p1_plan', usage:'p1_usage', history:'p1_history' };
 
 var PLATFORMS = [
   { label:'Instagram', value:'instagram', emoji:'📸' },
@@ -460,6 +482,7 @@ function switchTab(name) {
   var panels = document.querySelectorAll('.panel');
   for (var k=0;k<panels.length;k++) panels[k].classList.remove('active');
   document.getElementById('panel-'+name).classList.add('active');
+  if (name === 'history') renderHistory();
 }
 
 /* ═══════════ API KEY ═══════════ */
@@ -656,6 +679,11 @@ async function generatePost() {
 
     renderAll();
     document.getElementById('genOutput').style.display = 'block';
+    saveToHistory({
+      id: Date.now(), ts: Date.now(), topic: topic,
+      caption: cap.trim(), slides: slides,
+      themeIdx: themeIdx, useGradient: useGradient
+    });
     if (!isPro()) bumpUsage();
   } catch(e) { showStatus('genStatus', '生成失敗：' + e.message, 'err'); }
   finally { setLoading('genBtn','genSpinner','genBtnText', false, '✨ 用我的風格生成', []); }
@@ -844,6 +872,80 @@ function copyOut(textId, btnId) {
 function pad(n) { return String(n).padStart(2,'0'); }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function escapeHtml(s) { return esc(s); }
+
+/* ═══════════ 歷史紀錄（最多 5 筆）═══════════ */
+function getHistory() {
+  try { var h = JSON.parse(localStorage.getItem(LS.history) || '[]'); return Array.isArray(h) ? h : []; }
+  catch(e) { return []; }
+}
+function saveToHistory(rec) {
+  var h = getHistory();
+  h.unshift(rec);
+  if (h.length > 5) h = h.slice(0, 5);
+  try { localStorage.setItem(LS.history, JSON.stringify(h)); } catch(e) {}
+}
+function deleteHistoryItem(id) {
+  var h = getHistory().filter(function(r){ return r.id !== id; });
+  try { localStorage.setItem(LS.history, JSON.stringify(h)); } catch(e) {}
+  renderHistory();
+}
+function timeAgo(ts) {
+  var diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 60) return '剛剛';
+  if (diff < 3600) return Math.floor(diff/60) + ' 分鐘前';
+  if (diff < 86400) return Math.floor(diff/3600) + ' 小時前';
+  var d = new Date(ts);
+  return (d.getMonth()+1) + '/' + d.getDate() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+function renderHistory() {
+  var box = document.getElementById('history-list');
+  var h = getHistory();
+  if (!h.length) {
+    box.innerHTML = '<div class="hist-empty"><div class="e-ico">📭</div><div class="e-t">還沒有生成紀錄</div><div class="e-s">去「生成貼文」做一篇，<br>最近 5 篇會自動存在這裡。</div></div>';
+    return;
+  }
+  box.innerHTML = '';
+  h.forEach(function(r){
+    var item = document.createElement('div');
+    item.className = 'hist-item';
+    item.innerHTML =
+      '<div class="hist-top">' +
+        '<div class="hist-topic">' + esc(r.topic || '（未命名）') + '</div>' +
+        '<div class="hist-time">' + timeAgo(r.ts) + '</div>' +
+      '</div>' +
+      '<div class="hist-cap">' + esc(r.caption || '') + '</div>' +
+      '<div class="hist-meta">' + (r.slides ? r.slides.length : 0) + ' 張圖卡 · ' + (THEMES[r.themeIdx] ? THEMES[r.themeIdx].name : '') + '</div>' +
+      '<div class="hist-actions">' +
+        '<button class="hist-btn load" onclick="loadHistoryItem(' + r.id + ')">↺ 叫回這篇</button>' +
+        '<button class="hist-btn del" onclick="deleteHistoryItem(' + r.id + ')">🗑</button>' +
+      '</div>';
+    box.appendChild(item);
+  });
+}
+function loadHistoryItem(id) {
+  var rec = null, h = getHistory();
+  for (var i=0;i<h.length;i++) { if (h[i].id === id) { rec = h[i]; break; } }
+  if (!rec) return;
+  slides = rec.slides || [];
+  currentSlide = 0;
+  themeIdx = (typeof rec.themeIdx === 'number') ? rec.themeIdx : 0;
+  useGradient = (typeof rec.useGradient === 'boolean') ? rec.useGradient : true;
+  syncThemeButtons();
+  syncGradientBtn();
+  document.getElementById('genTopic').value = rec.topic || '';
+  document.getElementById('genText').textContent = rec.caption || '';
+  renderAll();
+  document.getElementById('genOutput').style.display = 'block';
+  switchTab('gen');
+  window.scrollTo(0, 0);
+}
+function syncThemeButtons() {
+  var btns = document.querySelectorAll('#theme-row .theme-btn');
+  for (var j=0;j<btns.length;j++) btns[j].classList.toggle('active', j===themeIdx);
+}
+function syncGradientBtn() {
+  document.getElementById('gradient-toggle-btn').textContent = useGradient ? '🎨 切換：漸層背景' : '⬜ 切換：純色背景';
+}
 
 init();
 </script>
